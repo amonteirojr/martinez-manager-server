@@ -9,6 +9,8 @@ import { AccessGroupModule } from './access-group/access-group.module';
 import { User } from './user/entities/user.entity';
 import { ConfigService } from './config/config.service';
 import { CreateUserTable1652583952286 } from 'migrations/1652583952286-CreateUserTable';
+import { RoleModule } from './role/role.module';
+import { PermissionModule } from './permission/permission.module';
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import { CreateUserTable1652583952286 } from 'migrations/1652583952286-CreateUse
     }),
     AccessGroupModule,
     ConfigModule,
+    RoleModule,
+    PermissionModule,
   ],
   controllers: [AppController],
 })

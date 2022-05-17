@@ -1,3 +1,4 @@
+import { Role } from 'src/role/entities/role.entity';
 import {
   Entity,
   Column,
@@ -5,12 +6,16 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BaseEntity,
+  BeforeInsert,
+  OneToMany,
 } from 'typeorm';
+
+import * as uuid from 'uuid';
 
 @Entity()
 export class User extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ unique: true })
   email: string;
@@ -32,4 +37,9 @@ export class User extends BaseEntity {
 
   @UpdateDateColumn()
   updatedAt?: Date;
+
+  @BeforeInsert()
+  generateUuid() {
+    this.id = uuid.v4();
+  }
 }
