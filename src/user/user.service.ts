@@ -10,6 +10,7 @@ import { UserRepository } from './repositories/user.repository';
 
 import * as bcrypt from 'bcrypt';
 import { CodeErrors } from 'src/shared/code-errors.enum';
+import { Role } from 'src/role/entities/role.entity';
 
 @Injectable()
 export class UserService {
@@ -21,18 +22,17 @@ export class UserService {
     try {
       const userDto = {
         email: createUserDTO.email,
-        password: bcrypt.hashSync(createUserDTO.password),
+        password: bcrypt.hashSync(createUserDTO.password, 8),
         firstname: createUserDTO.firstname,
         lastname: createUserDTO.lastname,
       };
 
       const createdUser = this.userRepository.create(userDto);
 
-      const { id, firstname, lastname, email } = await this.userRepository.save(
-        createdUser,
-      );
+      const { userId, firstname, lastname, email } =
+        await this.userRepository.save(createdUser);
 
-      return { id, firstname, lastname, email } as User;
+      return { userId, firstname, lastname, email } as User;
     } catch (err) {
       this.logger.error(`Failed to create user. Cause: ${err}`);
 
@@ -52,7 +52,12 @@ export class UserService {
 
   async findOneByEmail(email: string): Promise<User> {
     try {
-      return await this.userRepository.findOne({ email });
+      const user = await this.userRepository.findOne(
+        { email },
+        { relations: ['roles'] },
+      );
+
+      return user;
     } catch (err) {
       this.logger.error(`Failed to find user by email. Cause: ${err}`);
 

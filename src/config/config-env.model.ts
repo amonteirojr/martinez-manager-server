@@ -34,6 +34,9 @@ export class ConfigEnv {
   @IsString()
   typeormConnection: 'postgres';
 
+  @IsString()
+  hashKey: string;
+
   get isProduction(): boolean {
     return this.nodeEnv === NodeEnv.Production;
   }

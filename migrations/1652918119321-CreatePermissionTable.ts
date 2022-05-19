@@ -1,42 +1,26 @@
 import { MigrationInterface, QueryRunner, Table, TableUnique } from 'typeorm';
 
-export class CreateUserTable1652583952286 implements MigrationInterface {
+export class CreatePermissionTable1652918119321 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'user',
+        name: 'permission',
         columns: [
           {
-            name: 'userId',
+            name: 'permissionId',
             type: 'bytea',
             isPrimary: true,
           },
           {
-            name: 'email',
+            name: 'key',
             type: 'varchar(50)',
             isNullable: false,
             isUnique: true,
           },
           {
-            name: 'password',
+            name: 'description',
             type: 'varchar(255)',
-            isNullable: false,
-          },
-          {
-            name: 'firstname',
-            type: 'varchar(50)',
-            isNullable: false,
-          },
-          {
-            name: 'lastname',
-            type: 'varchar(50)',
             isNullable: true,
-          },
-          {
-            name: 'active',
-            type: 'boolean',
-            default: true,
-            isNullable: false,
           },
           {
             type: 'timestamp',
@@ -55,13 +39,13 @@ export class CreateUserTable1652583952286 implements MigrationInterface {
     );
 
     await queryRunner.createUniqueConstraint(
-      'user',
-      new TableUnique({ columnNames: ['email'], name: 'UK_EMAIL_1' }),
+      'permission',
+      new TableUnique({ columnNames: ['key'], name: 'UK_PERMISSION_KEY_1' }),
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropUniqueConstraint('user', 'UK_EMAIL_1');
-    await queryRunner.dropTable('user');
+    await queryRunner.dropUniqueConstraint('permission', 'UK_PERMISSION_KEY_1');
+    await queryRunner.dropTable('permission');
   }
 }
