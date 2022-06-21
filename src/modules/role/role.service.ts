@@ -4,16 +4,20 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CodeErrors } from 'src/shared/code-errors.enum';
+import { Repository } from 'typeorm';
 import { CreateRoleDTO } from './dto/create-role.dto';
 import { Role } from './entities/role.entity';
-import { RoleRepository } from './repositories/role.repository';
 
 @Injectable()
 export class RoleService {
   private readonly logger = new Logger(RoleService.name);
 
-  constructor(private readonly roleRepository: RoleRepository) {}
+  constructor(
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
+  ) {}
 
   async createRole(createRoleDTO: CreateRoleDTO): Promise<Role> {
     try {

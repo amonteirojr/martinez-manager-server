@@ -32,6 +32,16 @@ export class CreateCustomerTable1655695598209 implements MigrationInterface {
         name: 'ibgeId',
         type: 'integer',
       },
+      {
+        type: 'timestamp',
+        name: 'createdAt',
+        default: 'CURRENT_TIMESTAMP',
+      },
+      {
+        type: 'timestamp',
+        name: 'updatedAt',
+        default: 'CURRENT_TIMESTAMP',
+      },
     ];
 
     await queryRunner.createTable(

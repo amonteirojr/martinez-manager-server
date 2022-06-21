@@ -12,6 +12,7 @@ import { CreateRolesPermissionsTable1652918998495 } from 'migrations/16529189984
 import { AppController } from './app.controller';
 import { ContractModule } from './modules/contract/contract.module';
 import { CreateUsersTable1655696194528 } from 'migrations/1655696194528-CreateUsersTable';
+import { CustomerModule } from './modules/customer/customer.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { CreateUsersTable1655696194528 } from 'migrations/1655696194528-CreateUs
     RoleModule,
     PermissionModule,
     ContractModule,
+    CustomerModule,
   ],
 
   controllers: [AppController],
