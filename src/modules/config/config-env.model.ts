@@ -35,6 +35,9 @@ export class ConfigEnv {
   typeormConnection: 'postgres';
 
   @IsString()
+  typeormEntities: string;
+
+  @IsString()
   hashKey: string;
 
   get isProduction(): boolean {

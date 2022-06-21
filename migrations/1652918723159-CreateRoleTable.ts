@@ -4,12 +4,14 @@ export class CreateRoleTable1652918723159 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'role',
+        name: 'roles',
         columns: [
           {
             name: 'roleId',
-            type: 'bytea',
+            type: 'integer',
             isPrimary: true,
+            generationStrategy: 'identity',
+            isGenerated: true,
           },
           {
             name: 'name',
@@ -39,13 +41,13 @@ export class CreateRoleTable1652918723159 implements MigrationInterface {
     );
 
     await queryRunner.createUniqueConstraint(
-      'role',
+      'roles',
       new TableUnique({ columnNames: ['name'], name: 'UK_ROLE_NAME_1' }),
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropUniqueConstraint('role', 'UK_ROLE_NAME_1');
-    await queryRunner.dropTable('role');
+    await queryRunner.dropUniqueConstraint('roles', 'UK_ROLE_NAME_1');
+    await queryRunner.dropTable('roles');
   }
 }

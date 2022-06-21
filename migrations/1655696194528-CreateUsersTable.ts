@@ -1,15 +1,23 @@
-import { MigrationInterface, QueryRunner, Table, TableUnique } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+  TableUnique,
+} from 'typeorm';
 
-export class CreateUserTable1652583952286 implements MigrationInterface {
+export class CreateUsersTable1655696194528 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'user',
+        name: 'users',
         columns: [
           {
             name: 'userId',
-            type: 'bytea',
+            type: 'integer',
             isPrimary: true,
+            generationStrategy: 'identity',
+            isGenerated: true,
           },
           {
             name: 'email',
@@ -39,6 +47,10 @@ export class CreateUserTable1652583952286 implements MigrationInterface {
             isNullable: false,
           },
           {
+            name: 'roleId',
+            type: 'integer',
+          },
+          {
             type: 'timestamp',
             name: 'createdAt',
             isNullable: false,
@@ -55,13 +67,23 @@ export class CreateUserTable1652583952286 implements MigrationInterface {
     );
 
     await queryRunner.createUniqueConstraint(
-      'user',
+      'users',
       new TableUnique({ columnNames: ['email'], name: 'UK_EMAIL_1' }),
+    );
+
+    await queryRunner.createForeignKey(
+      'users',
+      new TableForeignKey({
+        name: 'FK_USERS_ROLES_ID',
+        referencedColumnNames: ['roleId'],
+        referencedTableName: 'roles',
+        columnNames: ['roleId'],
+      }),
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.dropUniqueConstraint('user', 'UK_EMAIL_1');
-    await queryRunner.dropTable('user');
+    await queryRunner.dropTable('user', true, true, true);
   }
 }

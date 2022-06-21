@@ -1,20 +1,17 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
-import { ConfigModule } from './config/config.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
+import { ConfigModule } from './modules/config/config.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './user/entities/user.entity';
-import { ConfigService } from './config/config.service';
-import { CreateUserTable1652583952286 } from 'migrations/1652583952286-CreateUserTable';
-import { RoleModule } from './role/role.module';
-import { PermissionModule } from './permission/permission.module';
+import { ConfigService } from './modules/config/config.service';
+import { RoleModule } from './modules/role/role.module';
+import { PermissionModule } from './modules/permission/permission.module';
 import { CreatePermissionTable1652918119321 } from 'migrations/1652918119321-CreatePermissionTable';
 import { CreateRoleTable1652918723159 } from 'migrations/1652918723159-CreateRoleTable';
 import { CreateRolesPermissionsTable1652918998495 } from 'migrations/1652918998495-CreateRolesPermissionsTable';
-import { CreateUsersRolesTable1652918883842 } from 'migrations/1652918883842-CreateUsersRolesTable';
 import { AppController } from './app.controller';
-import { Permission } from './permission/entities/permission.entity';
-import { Role } from './role/entities/role.entity';
+import { ContractModule } from './modules/contract/contract.module';
+import { CreateUsersTable1655696194528 } from 'migrations/1655696194528-CreateUsersTable';
 
 @Module({
   imports: [
@@ -31,23 +28,23 @@ import { Role } from './role/entities/role.entity';
         database: configService.envConfig.typeormDatabase,
         username: configService.envConfig.typeormUsername,
         password: configService.envConfig.typeormPassword,
-        url: process.env.DATABASE_URL,
         // ssl: { rejectUnauthorized: false },
-        entities: [User, Permission, Role],
+        entities: [__dirname + '/**/*.entity{.js,.ts}'],
         synchronize: false,
         migrationsRun: true,
         migrations: [
-          CreateUserTable1652583952286,
           CreatePermissionTable1652918119321,
           CreateRoleTable1652918723159,
           CreateRolesPermissionsTable1652918998495,
-          CreateUsersRolesTable1652918883842,
+          CreateUsersTable1655696194528,
         ],
       }),
     }),
     RoleModule,
     PermissionModule,
+    ContractModule,
   ],
+
   controllers: [AppController],
 })
 export class AppModule {}

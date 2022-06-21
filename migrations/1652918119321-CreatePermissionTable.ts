@@ -4,12 +4,14 @@ export class CreatePermissionTable1652918119321 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'permission',
+        name: 'permissions',
         columns: [
           {
             name: 'permissionId',
-            type: 'bytea',
+            type: 'integer',
             isPrimary: true,
+            generationStrategy: 'identity',
+            isGenerated: true,
           },
           {
             name: 'key',
@@ -39,13 +41,16 @@ export class CreatePermissionTable1652918119321 implements MigrationInterface {
     );
 
     await queryRunner.createUniqueConstraint(
-      'permission',
+      'permissions',
       new TableUnique({ columnNames: ['key'], name: 'UK_PERMISSION_KEY_1' }),
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropUniqueConstraint('permission', 'UK_PERMISSION_KEY_1');
-    await queryRunner.dropTable('permission');
+    await queryRunner.dropUniqueConstraint(
+      'permissions',
+      'UK_PERMISSION_KEY_1',
+    );
+    await queryRunner.dropTable('permissions');
   }
 }

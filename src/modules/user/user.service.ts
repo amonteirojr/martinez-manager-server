@@ -6,17 +6,20 @@ import {
 } from '@nestjs/common';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
-import { UserRepository } from './repositories/user.repository';
 
 import * as bcrypt from 'bcrypt';
 import { CodeErrors } from 'src/shared/code-errors.enum';
-import { Role } from 'src/role/entities/role.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
 
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
 
   async createUser(createUserDTO: CreateUserDTO): Promise<User> {
     try {
@@ -50,12 +53,27 @@ export class UserService {
     }
   }
 
+  async findByEmailForLogin(email: string): Promise<User> {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { email },
+        relations: ['role'],
+      });
+
+      return user;
+    } catch (err) {
+      this.logger.error(`Failed to find user by email. Cause: ${err}`);
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_FIND_USER,
+        message: 'Failed to find user by email for login',
+      });
+    }
+  }
+
   async findOneByEmail(email: string): Promise<User> {
     try {
-      const user = await this.userRepository.findOne(
-        { email },
-        { relations: ['roles'] },
-      );
+      const user = await this.userRepository.findOne({ where: { email } });
 
       return user;
     } catch (err) {
@@ -64,6 +82,24 @@ export class UserService {
       throw new InternalServerErrorException({
         code: CodeErrors.FAIL_TO_FIND_USER,
         message: 'Failed to find user by email',
+      });
+    }
+  }
+
+  async getUserById(id: number): Promise<User> {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { userId: id },
+        relations: ['role'],
+      });
+
+      return user;
+    } catch (err) {
+      this.logger.error(`Failed to find user by ID. Cause: ${err}`);
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_FIND_USER,
+        message: 'Failed to find user by ID',
       });
     }
   }
