@@ -7,9 +7,9 @@ import {
   BaseEntity,
   ManyToOne,
 } from 'typeorm';
-import { BiddingModalityEnum } from 'src/enums/BiddingModality';
-import { PaymentModesEnum } from 'src/enums/PaymentMode';
-import { Customer } from 'src/modules/customer/entities/customer.entity';
+import { BiddingModalityEnum } from '../../../enums/BiddingModality';
+import { PaymentModesEnum } from '../../../enums/PaymentMode';
+import { Customer } from '../../../modules/customer/entities/customer.entity';
 
 @Entity({ name: 'contracts' })
 export class Contract extends BaseEntity {

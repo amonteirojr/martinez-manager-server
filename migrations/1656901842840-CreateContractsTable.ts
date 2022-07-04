@@ -1,5 +1,5 @@
-import { BiddingModalityEnum } from 'src/enums/BiddingModality';
-import { PaymentModesEnum } from 'src/enums/PaymentMode';
+import { BiddingModalityEnum } from '../src/enums/BiddingModality';
+import { PaymentModesEnum } from '../src/enums/PaymentMode';
 import {
   MigrationInterface,
   QueryRunner,

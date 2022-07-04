@@ -1,3 +1,4 @@
+import { Contract } from '../../../modules/contract/entitites/contract.entity';
 import {
   Entity,
   Column,
@@ -7,7 +8,6 @@ import {
   BaseEntity,
   OneToMany,
 } from 'typeorm';
-import { Contract } from 'src/modules/contract/entitites/contract.entity';
 
 @Entity({ name: 'customers' })
 export class Customer extends BaseEntity {
