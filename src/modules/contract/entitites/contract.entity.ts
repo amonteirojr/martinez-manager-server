@@ -38,13 +38,13 @@ export class Contract extends BaseEntity {
   initialValue: number;
 
   @Column()
-  signatureDate: Date;
+  signatureDate: string;
 
   @Column()
-  initialValidity: Date;
+  initialValidity: string;
 
   @Column()
-  finalValidity: Date;
+  finalValidity: string;
 
   @Column()
   responsible: string;

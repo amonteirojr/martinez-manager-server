@@ -12,8 +12,8 @@ import {
 
 import { ApiCreatedResponse, ApiResponse } from '@nestjs/swagger';
 import { Response } from 'express';
-import { LocalAuthGuard } from '../auth/guards/local-auth.guard';
-import { RoleEnum, Roles } from '../role/role.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+
 import { CreateUserDTO } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
@@ -23,6 +23,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({ type: User })
   @HttpCode(HttpStatus.CREATED)
   async createUser(@Res() res: Response, @Body() createUserDTO: CreateUserDTO) {
@@ -32,6 +33,7 @@ export class UserController {
 
   @Get('/:id')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
   @ApiResponse({ type: User })
   async getUserById(@Res() res: Response, @Param('id') userId: number) {
     const user = await this.userService.getUserById(userId);
