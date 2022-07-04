@@ -74,7 +74,7 @@ export class CreateUsersTable1655696194528 implements MigrationInterface {
     await queryRunner.createForeignKey(
       'users',
       new TableForeignKey({
-        name: 'FK_USERS_ROLES_ID',
+        name: 'FK_USERS_ROLES',
         referencedColumnNames: ['roleId'],
         referencedTableName: 'roles',
         columnNames: ['roleId'],
