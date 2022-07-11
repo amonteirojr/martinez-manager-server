@@ -6,10 +6,14 @@ import {
   UpdateDateColumn,
   BaseEntity,
   ManyToOne,
+  JoinColumn,
+  JoinTable,
+  OneToOne,
 } from 'typeorm';
 import { BiddingModalityEnum } from '../../../enums/BiddingModality';
 import { PaymentModesEnum } from '../../../enums/PaymentMode';
 import { Customer } from '../../../modules/customer/entities/customer.entity';
+import { System } from '../../../modules/system/entities/system.entity';
 
 @Entity({ name: 'contracts' })
 export class Contract extends BaseEntity {
@@ -73,6 +77,12 @@ export class Contract extends BaseEntity {
   @UpdateDateColumn()
   updatedAt?: Date;
 
-  @ManyToOne(() => Customer, (customer) => customer.contracts)
+  @OneToOne(() => Customer)
+  @JoinColumn({ name: 'customerId' })
   customer?: Customer;
+
+  @ManyToOne(() => System, (system) => system.contracts)
+  @JoinTable({ name: 'contracts_systems' })
+  @JoinColumn({ name: 'contractId' })
+  system?: System;
 }

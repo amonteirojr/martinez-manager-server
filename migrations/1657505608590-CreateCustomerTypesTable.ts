@@ -1,11 +1,13 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class CreateStatesTable1656899728628 implements MigrationInterface {
-  private table = new Table({
-    name: 'states',
+export class CreateCustomerTypesTable1657505608590
+  implements MigrationInterface
+{
+  table = new Table({
+    name: 'customer_types',
     columns: [
       {
-        name: 'stateId',
+        name: 'typeId',
         type: 'integer',
         isPrimary: true,
         generationStrategy: 'identity',
@@ -13,15 +15,7 @@ export class CreateStatesTable1656899728628 implements MigrationInterface {
       },
       {
         name: 'name',
-        type: 'varchar(50)',
-      },
-      {
-        name: 'code',
-        type: 'varchar(2)',
-      },
-      {
-        name: 'ibgeCode',
-        type: 'integer',
+        type: 'varchar(30)',
       },
       {
         type: 'timestamp',
@@ -31,7 +25,6 @@ export class CreateStatesTable1656899728628 implements MigrationInterface {
       {
         type: 'timestamp',
         name: 'updatedAt',
-
         default: 'CURRENT_TIMESTAMP',
       },
     ],

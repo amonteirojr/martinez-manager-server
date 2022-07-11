@@ -29,8 +29,8 @@ export class CreateCitiesTable1656901769457 implements MigrationInterface {
         type: 'integer',
       },
       {
-        name: 'stateId',
-        type: 'integer',
+        name: 'state',
+        type: 'varchar(2)',
       },
       {
         type: 'timestamp',
@@ -48,16 +48,6 @@ export class CreateCitiesTable1656901769457 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(this.table);
-
-    await queryRunner.createForeignKey(
-      this.table,
-      new TableForeignKey({
-        columnNames: ['stateId'],
-        referencedColumnNames: ['stateId'],
-        referencedTableName: 'states',
-        name: 'FK_CITIES_STATES',
-      }),
-    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

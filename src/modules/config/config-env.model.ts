@@ -38,6 +38,12 @@ export class ConfigEnv {
   typeormEntities: string;
 
   @IsString()
+  apiIbgeSidra: string;
+
+  @IsString()
+  apiIbgeLocalidades: string;
+
+  @IsString()
   hashKey: string;
 
   get isProduction(): boolean {

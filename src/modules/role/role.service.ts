@@ -40,4 +40,19 @@ export class RoleService {
       });
     }
   }
+
+  async findRoleByName(roleName: string): Promise<Role> {
+    try {
+      return await this.roleRepository.findOne({
+        where: { name: roleName },
+      });
+    } catch (err) {
+      this.logger.error(`Failed to find role by name. Cause: ${err}`);
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_FIND_ROLE,
+        message: 'Failed to find the role by its name',
+      });
+    }
+  }
 }

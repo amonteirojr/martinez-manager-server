@@ -12,7 +12,7 @@ import {
 import { BiddingModalityEnum } from 'src/enums/BiddingModality';
 import { PaymentModesEnum } from 'src/enums/PaymentMode';
 
-export class CreateContractDTO {
+export class CreateOrUpdateContractDTO {
   @ApiProperty({
     description: 'ID do cliente',
     example: 1,
@@ -141,7 +141,7 @@ export class CreateContractDTO {
   @ApiProperty({
     description: 'Modalidade do proc. licitatório',
     example: 'SOLICITATION_OF_PRICE',
-    type: BiddingModalityEnum,
+    enum: BiddingModalityEnum,
   })
   @IsEnum(BiddingModalityEnum)
   biddingModality: BiddingModalityEnum;
@@ -167,7 +167,7 @@ export class CreateContractDTO {
   @ApiProperty({
     description: 'Modo de pagamento',
     example: 'PIX',
-    type: PaymentModesEnum,
+    enum: PaymentModesEnum,
   })
   @IsEnum(PaymentModesEnum)
   paymentMode: PaymentModesEnum;

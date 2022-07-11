@@ -37,4 +37,12 @@ export class CreateUserDTO {
   @IsString()
   @IsOptional()
   lastname?: string;
+
+  @ApiProperty({
+    description: 'Grupo do usuário',
+    example: 'DEVELOPER',
+    type: String,
+  })
+  @IsString()
+  role: string;
 }

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
@@ -11,6 +12,7 @@ import * as bcrypt from 'bcrypt';
 import { CodeErrors } from 'src/shared/code-errors.enum';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { RoleService } from '../role/role.service';
 
 @Injectable()
 export class UserService {
@@ -19,11 +21,21 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly roleService: RoleService,
   ) {}
 
   async createUser(createUserDTO: CreateUserDTO): Promise<User> {
     try {
+      const role = await this.roleService.findRoleByName(createUserDTO.role);
+
+      if (!role)
+        throw new BadRequestException({
+          code: CodeErrors.FAIL_TO_FIND_ROLE,
+          message: 'Role is invalid or doesnt exist',
+        });
+
       const userDto = {
+        role,
         email: createUserDTO.email,
         password: bcrypt.hashSync(createUserDTO.password, 8),
         firstname: createUserDTO.firstname,
@@ -46,6 +58,10 @@ export class UserService {
         });
       }
 
+      if (err instanceof BadRequestException) {
+        throw err;
+      }
+
       throw new InternalServerErrorException({
         code: CodeErrors.FAIL_TO_CREATE_USER,
         message: 'Failed to create the user',
@@ -56,8 +72,10 @@ export class UserService {
   async findByEmailForLogin(email: string): Promise<User> {
     try {
       const user = await this.userRepository.findOne({
-        where: { email },
-        relations: ['role'],
+        where: { email, active: true },
+        relations: {
+          role: true,
+        },
       });
 
       return user;
@@ -73,7 +91,9 @@ export class UserService {
 
   async findOneByEmail(email: string): Promise<User> {
     try {
-      const user = await this.userRepository.findOne({ where: { email } });
+      const user = await this.userRepository.findOne({
+        where: { email },
+      });
 
       return user;
     } catch (err) {

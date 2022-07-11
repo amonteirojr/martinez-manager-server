@@ -23,7 +23,6 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({ type: User })
   @HttpCode(HttpStatus.CREATED)
   async createUser(@Res() res: Response, @Body() createUserDTO: CreateUserDTO) {

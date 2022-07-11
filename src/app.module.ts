@@ -8,6 +8,11 @@ import { AppController } from './app.controller';
 import { ContractModule } from './modules/contract/contract.module';
 import { CustomerModule } from './modules/customer/customer.module';
 import AppDataSource from './database/migrations.datasource';
+import { SystemModule } from './modules/system/system.module';
+import { CityModule } from './modules/city/city.module';
+import { CustomerTypeModule } from './modules/customer-type/customer-type.module';
+import { IbgeModule } from './modules/ibge/ibge.module';
+import { IbgeSidraModule } from './modules/ibge-sidra/ibge-sidra.module';
 
 @Module({
   imports: [
@@ -20,6 +25,11 @@ import AppDataSource from './database/migrations.datasource';
     RoleModule,
     ContractModule,
     CustomerModule,
+    SystemModule,
+    CityModule,
+    CustomerTypeModule,
+    IbgeModule,
+    IbgeSidraModule,
   ],
 
   controllers: [AppController],

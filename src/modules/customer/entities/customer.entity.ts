@@ -1,4 +1,4 @@
-import { Contract } from '../../../modules/contract/entitites/contract.entity';
+import { CustomerType } from 'src/modules/customer-type/entities/customer-type.entity';
 import {
   Entity,
   Column,
@@ -7,24 +7,26 @@ import {
   UpdateDateColumn,
   BaseEntity,
   OneToMany,
+  ManyToOne,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm';
+import { City } from '../../../modules/city/entities/city.entity';
+import { Contract } from '../../../modules/contract/entitites/contract.entity';
 
 @Entity({ name: 'customers' })
 export class Customer extends BaseEntity {
   @PrimaryGeneratedColumn('identity')
-  customerId: number;
+  customerId?: number;
 
   @Column()
   customerName: string;
 
   @Column()
-  cityName: string;
+  cityId: number;
 
   @Column()
-  cityPopulation: number;
-
-  @Column({ width: 4 })
-  ibgeId?: string;
+  typeId: number;
 
   @CreateDateColumn()
   createdAt?: Date;
@@ -32,6 +34,14 @@ export class Customer extends BaseEntity {
   @UpdateDateColumn()
   updatedAt?: Date;
 
-  @OneToMany(() => Contract, (contract) => contract.customer)
-  contracts?: Contract;
+  @OneToOne(() => Contract)
+  contract?: Contract;
+
+  @ManyToOne(() => CustomerType, (customerType) => customerType.customers)
+  @JoinColumn({ name: 'typeId' })
+  customerType?: CustomerType;
+
+  @ManyToOne(() => City, (city) => city.customers)
+  @JoinColumn({ name: 'cityId' })
+  city?: City;
 }

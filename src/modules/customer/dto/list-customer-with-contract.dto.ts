@@ -1,0 +1,40 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+
+export class CustomerWithContractDTO {
+  @ApiProperty({
+    description: 'ID do cliente',
+    example: 1,
+    type: Number,
+  })
+  @IsNotEmpty()
+  @IsNumber()
+  customerId: number;
+
+  @ApiProperty({
+    description: 'Nome do cliente',
+    example: 'Prefeitura Municipal de Votuporanga',
+    type: String,
+  })
+  @IsNotEmpty()
+  @IsString()
+  customerName: string;
+
+  @ApiProperty({
+    description: 'Nome da cidade',
+    example: 'Votuporanga',
+    type: String,
+  })
+  @IsString()
+  @IsNotEmpty()
+  cityName: string;
+
+  @ApiProperty({
+    description: 'Nosso número de contrato',
+    example: '00001/2022',
+    type: String,
+  })
+  @IsString()
+  @IsNotEmpty()
+  contractNumber: string;
+}
