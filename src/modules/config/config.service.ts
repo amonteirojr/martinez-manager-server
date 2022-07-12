@@ -41,6 +41,8 @@ export class ConfigService implements OnModuleInit {
     envConfig.apiIbgeLocalidades = config.API_IBGE_LOCALIDADES;
     envConfig.sendingblueApiUrl = config.SENDINBLUE_API_URL;
     envConfig.sendingblueApiKey = config.SENDINBLUE_API_KEY;
+    envConfig.senderEmail = config.MAIL_SENDER_EMAIL;
+    envConfig.senderName = config.MAIL_SENDER_NAME;
     envConfig.hashKey = config.HASH_KEY;
 
     return envConfig;

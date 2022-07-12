@@ -1,4 +1,11 @@
-import { IsString, IsNumber, IsPositive, IsEnum, IsUrl } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsPositive,
+  IsEnum,
+  IsUrl,
+  IsEmail,
+} from 'class-validator';
 
 export enum NodeEnv {
   Development = 'development',
@@ -48,6 +55,12 @@ export class ConfigEnv {
 
   @IsUrl()
   sendingblueApiUrl: string;
+
+  @IsEmail()
+  senderEmail: string;
+
+  @IsString()
+  senderName: string;
 
   @IsString()
   hashKey: string;
