@@ -15,6 +15,7 @@ import { IbgeModule } from './modules/ibge/ibge.module';
 import { IbgeSidraModule } from './modules/ibge-sidra/ibge-sidra.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { FileModule } from './modules/file/file.module';
+import { NotificationModule } from './modules/notification/notification.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { FileModule } from './modules/file/file.module';
     IbgeModule,
     IbgeSidraModule,
     FileModule,
+    NotificationModule,
   ],
 
   controllers: [AppController],

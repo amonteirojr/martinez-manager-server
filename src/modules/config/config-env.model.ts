@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsPositive, IsEnum } from 'class-validator';
+import { IsString, IsNumber, IsPositive, IsEnum, IsUrl } from 'class-validator';
 
 export enum NodeEnv {
   Development = 'development',
@@ -37,11 +37,17 @@ export class ConfigEnv {
   @IsString()
   typeormEntities: string;
 
-  @IsString()
+  @IsUrl()
   apiIbgeSidra: string;
 
-  @IsString()
+  @IsUrl()
   apiIbgeLocalidades: string;
+
+  @IsString()
+  sendingblueApiKey: string;
+
+  @IsUrl()
+  sendingblueApiUrl: string;
 
   @IsString()
   hashKey: string;
