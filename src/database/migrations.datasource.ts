@@ -18,7 +18,9 @@ import { ConfigService } from '../modules/config/config.service';
 import { City } from '../modules/city/entities/city.entity';
 import { CreateCustomerTypesTable1657505608590 } from '../../migrations/1657505608590-CreateCustomerTypesTable';
 import { AlterTableCustomersAddTypeId1657505910089 } from '../../migrations/1657505910089-AlterTableCustomersAddTypeId';
-import { CustomerType } from 'src/modules/customer-type/entities/customer-type.entity';
+import { CustomerType } from '../modules/customer-type/entities/customer-type.entity';
+import { File } from '../modules/file/entitites/file.entity';
+import { CreateFilesTable1657603283224 } from '../../migrations/1657603283224-CreateFilesTable';
 
 const config = new ConfigService();
 
@@ -29,7 +31,7 @@ const AppDataSource = new DataSource({
   database: config.envConfig.typeormDatabase,
   username: config.envConfig.typeormUsername,
   password: config.envConfig.typeormPassword,
-  entities: [User, Role, Contract, Customer, System, City, CustomerType],
+  entities: [User, Role, Contract, Customer, System, City, CustomerType, File],
   synchronize: false,
   migrationsRun: true,
   migrations: [
@@ -42,6 +44,7 @@ const AppDataSource = new DataSource({
     CreateContractsSystemsTable1657162689496,
     CreateCustomerTypesTable1657505608590,
     AlterTableCustomersAddTypeId1657505910089,
+    CreateFilesTable1657603283224,
   ],
   logging: false,
 });

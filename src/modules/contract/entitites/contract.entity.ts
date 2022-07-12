@@ -1,3 +1,4 @@
+import { File } from '../../../modules/file/entitites/file.entity';
 import {
   Entity,
   Column,
@@ -84,5 +85,9 @@ export class Contract extends BaseEntity {
   @ManyToOne(() => System, (system) => system.contracts)
   @JoinTable({ name: 'contracts_systems' })
   @JoinColumn({ name: 'contractId' })
-  system?: System;
+  systems?: System[];
+
+  @ManyToOne(() => File, (file) => file.contract)
+  @JoinColumn({ name: 'contractId' })
+  files?: File[];
 }

@@ -16,6 +16,7 @@ import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ContractService } from './contract.service';
 import { ContractInfoCountResponseDTO } from './dto/contract-info-count-response.dto';
+import { ContractTableResponseDTO } from './dto/contract-table-response.dto';
 import { CreateOrUpdateContractDTO } from './dto/create-or-update-contract.dto';
 import { Contract } from './entitites/contract.entity';
 
@@ -38,6 +39,15 @@ export class ContractController {
   @ApiResponse({ type: Array<Contract> })
   async getAllContracts(@Res() res: Response) {
     const contract = await this.contractService.getAllContracts();
+    return res.send(contract);
+  }
+
+  @Get('/table')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ type: Array<ContractTableResponseDTO> })
+  async getContractsList(@Res() res: Response) {
+    const contract = await this.contractService.getContractsForTable();
     return res.send(contract);
   }
 

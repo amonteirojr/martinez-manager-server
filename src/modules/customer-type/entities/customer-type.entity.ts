@@ -1,4 +1,4 @@
-import { Customer } from 'src/modules/customer/entities/customer.entity';
+import { Customer } from '../../../modules/customer/entities/customer.entity';
 import {
   Entity,
   Column,

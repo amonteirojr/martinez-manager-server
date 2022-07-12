@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CodeErrors } from 'src/shared/code-errors.enum';
 import { Repository } from 'typeorm';
 import { ContractInfoCountResponseDTO } from './dto/contract-info-count-response.dto';
+import { ContractTableResponseDTO } from './dto/contract-table-response.dto';
 import { CreateOrUpdateContractDTO } from './dto/create-or-update-contract.dto';
 import { Contract } from './entitites/contract.entity';
 
@@ -51,6 +52,44 @@ export class ContractService {
       throw new InternalServerErrorException({
         code: CodeErrors.FAIL_TO_GET_CONTRACTS,
         message: 'Failed to get all contracts',
+      });
+    }
+  }
+
+  async getContractsForTable(): Promise<ContractTableResponseDTO[]> {
+    try {
+      const contracts = await this.contractRepository.find({
+        relations: ['customer', 'customer.city'],
+        order: {
+          contractId: 'ASC',
+        },
+      });
+
+      const response: ContractTableResponseDTO[] = contracts.map((contract) => {
+        return {
+          contractId: contract.contractId,
+          cityName: contract.customer.city.cityName,
+          customerName: contract.customer.customerName,
+          ourContractNumber: `${contract.ourContractNumber}/${contract.ourContractYear}`,
+          validity: new Date(contract.finalValidity).toLocaleString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+          }),
+          value: contract.initialValue.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+          }),
+        } as ContractTableResponseDTO;
+      });
+
+      return response;
+    } catch (err) {
+      this.logger.error(`Failed to get contracts for table. Cause: ${err}`);
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_GET_CONTRACTS,
+        message: 'Failed to get contracts for table',
       });
     }
   }

@@ -1,3 +1,4 @@
+import { Contract } from '../../../modules/contract/entitites/contract.entity';
 import {
   Entity,
   Column,
@@ -5,21 +6,20 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BaseEntity,
-  OneToMany,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
-import { Contract } from '../../../modules/contract/entitites/contract.entity';
 
-@Entity({ name: 'systems' })
-export class System extends BaseEntity {
+@Entity({ name: 'files' })
+export class File extends BaseEntity {
   @PrimaryGeneratedColumn('identity')
-  systemId?: number;
+  fileId?: number;
 
   @Column()
-  name: string;
+  contractId: number;
 
   @Column()
-  description: string;
+  fileName: string;
 
   @CreateDateColumn()
   createdAt?: Date;
@@ -27,7 +27,7 @@ export class System extends BaseEntity {
   @UpdateDateColumn()
   updatedAt?: Date;
 
-  @OneToMany(() => Contract, (contract) => contract.systems)
+  @OneToMany(() => Contract, (contract) => contract.files)
   @JoinColumn({ name: 'contractId' })
-  contracts?: Contract[];
+  contract?: Contract;
 }

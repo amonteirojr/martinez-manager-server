@@ -136,14 +136,15 @@ export class CreateOrUpdateContractDTO {
     type: String,
   })
   @IsString()
-  biddingClassification: string;
+  @IsOptional()
+  biddingClassification?: string;
 
   @ApiProperty({
     description: 'Modalidade do proc. licitatório',
     example: 'SOLICITATION_OF_PRICE',
     enum: BiddingModalityEnum,
   })
-  @IsEnum(BiddingModalityEnum)
+  @IsString()
   biddingModality: BiddingModalityEnum;
 
   @ApiProperty({
@@ -169,6 +170,6 @@ export class CreateOrUpdateContractDTO {
     example: 'PIX',
     enum: PaymentModesEnum,
   })
-  @IsEnum(PaymentModesEnum)
+  @IsString()
   paymentMode: PaymentModesEnum;
 }

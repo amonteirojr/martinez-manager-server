@@ -13,15 +13,22 @@ import { CityModule } from './modules/city/city.module';
 import { CustomerTypeModule } from './modules/customer-type/customer-type.module';
 import { IbgeModule } from './modules/ibge/ibge.module';
 import { IbgeSidraModule } from './modules/ibge-sidra/ibge-sidra.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { FileModule } from './modules/file/file.module';
 
 @Module({
   imports: [
-    AuthModule,
-    ConfigModule,
-    UserModule,
+    MulterModule.registerAsync({
+      useFactory: () => ({
+        dest: './upload',
+      }),
+    }),
     TypeOrmModule.forRootAsync({
       useFactory: () => AppDataSource.options,
     }),
+    AuthModule,
+    ConfigModule,
+    UserModule,
     RoleModule,
     ContractModule,
     CustomerModule,
@@ -30,6 +37,7 @@ import { IbgeSidraModule } from './modules/ibge-sidra/ibge-sidra.module';
     CustomerTypeModule,
     IbgeModule,
     IbgeSidraModule,
+    FileModule,
   ],
 
   controllers: [AppController],
