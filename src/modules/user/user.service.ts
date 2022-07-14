@@ -13,6 +13,9 @@ import { CodeErrors } from 'src/shared/code-errors.enum';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoleService } from '../role/role.service';
+import { ResetPasswordDTO } from './dto/reset-password.dto';
+import { JwtService } from '@nestjs/jwt';
+import { ResetTokenType } from 'src/types';
 
 @Injectable()
 export class UserService {
@@ -22,6 +25,7 @@ export class UserService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly roleService: RoleService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async createUser(createUserDTO: CreateUserDTO): Promise<User> {
@@ -65,6 +69,42 @@ export class UserService {
       throw new InternalServerErrorException({
         code: CodeErrors.FAIL_TO_CREATE_USER,
         message: 'Failed to create the user',
+      });
+    }
+  }
+
+  async resetPassword(
+    resetPasswordDTO: ResetPasswordDTO,
+    resetToken: string,
+  ): Promise<void> {
+    try {
+      if (!resetToken) {
+        this.logger.error('resetToken is required');
+
+        throw new BadRequestException({
+          message: 'resetToken is invalid or null',
+          code: CodeErrors.RESET_TOKEN_IS_INVALID,
+        });
+      }
+
+      const userData: ResetTokenType = this.jwtService.decode(
+        resetToken,
+      ) as ResetTokenType;
+
+      await this.userRepository.update(
+        { email: userData.email, active: true },
+        {
+          password: bcrypt.hashSync(resetPasswordDTO.newPassword, 8),
+        },
+      );
+
+      return;
+    } catch (err) {
+      this.logger.error(`Failed to reset user password. Cause: ${err}`);
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_RESET_PASSWORD,
+        message: 'Failed to reset user password',
       });
     }
   }

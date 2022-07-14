@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CodeErrors } from 'src/shared/code-errors.enum';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateOrUpdateSystemDTO } from './dto/create-or-update.system.dto';
 
 import { System } from './entities/system.entity';
@@ -59,6 +59,23 @@ export class SystemService {
       throw new InternalServerErrorException({
         code: CodeErrors.FAIL_TO_FIND_SYSTEM,
         message: 'Failed to find system by ID',
+      });
+    }
+  }
+
+  async getSystemListByIds(ids: number[]): Promise<System[]> {
+    try {
+      return await this.systemRepository.find({
+        where: {
+          systemId: In(ids),
+        },
+      });
+    } catch (err) {
+      this.logger.error(`Failed to find systems. Cause: ${err}`);
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_FIND_SYSTEM,
+        message: 'Failed to find systems',
       });
     }
   }

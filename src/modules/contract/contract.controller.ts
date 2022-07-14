@@ -68,11 +68,11 @@ export class ContractController {
     @Param('id') contractId: number,
     @Body() updateContractDTO: CreateOrUpdateContractDTO,
   ) {
-    await this.contractService.updateContractById(
+    const contract = await this.contractService.updateContractById(
       contractId,
       updateContractDTO,
     );
-    return res.send();
+    return res.send(contract);
   }
 
   @Post()
@@ -83,7 +83,9 @@ export class ContractController {
     @Res() res: Response,
     @Body() updateContractDTO: CreateOrUpdateContractDTO,
   ) {
-    await this.contractService.createContract(updateContractDTO);
-    return res.send();
+    const contract = await this.contractService.createContract(
+      updateContractDTO,
+    );
+    return res.send(contract);
   }
 }

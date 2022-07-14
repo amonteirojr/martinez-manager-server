@@ -32,6 +32,7 @@ export class CustomerService {
         cityId: createdCity.cityId,
         customerName: data.customerName,
         typeId: data.customerTypeId,
+        document: data.document,
       };
 
       return await this.customerRepository.create(newCustomer).save();

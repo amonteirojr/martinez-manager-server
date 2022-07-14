@@ -33,14 +33,9 @@ export class FileController {
       storage: diskStorage({
         destination: './upload/files',
         filename: (_, file, callback) => {
-          const uniqueSuffix = `${Date.now()}${Math.round(
-            Math.random() * 1e9,
-          )}`;
-
-          const ext = extname(file.originalname);
-          const filename = `${uniqueSuffix}${ext}`;
-
-          callback(null, filename);
+          const prefix = new Date().getTime();
+          const fileName = `${prefix}${file.originalname}`;
+          callback(null, fileName);
         },
       }),
     }),

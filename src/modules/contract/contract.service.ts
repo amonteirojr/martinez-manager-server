@@ -7,9 +7,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { CodeErrors } from 'src/shared/code-errors.enum';
 import { Repository } from 'typeorm';
+import { SystemService } from '../system/system.service';
 import { ContractInfoCountResponseDTO } from './dto/contract-info-count-response.dto';
 import { ContractTableResponseDTO } from './dto/contract-table-response.dto';
 import { CreateOrUpdateContractDTO } from './dto/create-or-update-contract.dto';
+import { UpdateContractResponseDTO } from './dto/update-contract-response.dto';
 import { Contract } from './entitites/contract.entity';
 
 @Injectable()
@@ -19,6 +21,7 @@ export class ContractService {
   constructor(
     @InjectRepository(Contract)
     private readonly contractRepository: Repository<Contract>,
+    private readonly systemService: SystemService,
   ) {}
 
   async getContractSummary(): Promise<ContractInfoCountResponseDTO> {
@@ -98,6 +101,10 @@ export class ContractService {
     try {
       return await this.contractRepository.findOne({
         where: { contractId: id },
+        relations: {
+          systems: true,
+          files: true,
+        },
       });
     } catch (err) {
       this.logger.error(`Failed to get contract by id ${id}. Cause: ${err}`);
@@ -112,7 +119,7 @@ export class ContractService {
   async updateContractById(
     id: number,
     data: CreateOrUpdateContractDTO,
-  ): Promise<void> {
+  ): Promise<UpdateContractResponseDTO> {
     try {
       const updated = await this.contractRepository.update(
         { contractId: id },
@@ -124,7 +131,7 @@ export class ContractService {
           `Contract id ${id} and number ${data.ourContractNumber} was updated`,
         );
 
-      return;
+      return { contractId: id };
     } catch (err) {
       this.logger.error(`Failed to get contract by id ${id}. Cause: ${err}`);
 
@@ -137,13 +144,34 @@ export class ContractService {
 
   async createContract(data: CreateOrUpdateContractDTO): Promise<Contract> {
     try {
-      const created = this.contractRepository.create(data);
+      const ids = data.systems.map((system) => system.systemId);
+      const systems = await this.systemService.getSystemListByIds(ids);
 
-      return await this.contractRepository.save(created);
+      if (!systems) {
+        this.logger.error(`Systems were not found. ${JSON.stringify(ids)}`);
+
+        throw new BadRequestException({
+          message: 'Systems id were not found.',
+          code: CodeErrors.SYSTEMS_WERE_NOT_FOUND,
+        });
+      }
+
+      const contract = {
+        ...data,
+        systems,
+      } as Contract;
+
+      return await this.contractRepository.create(contract).save();
     } catch (err) {
       this.logger.error(
         `Failed to create contract number ${data.ourContractNumber}. Cause: ${err}`,
       );
+
+      if (
+        err instanceof BadRequestException ||
+        err instanceof InternalServerErrorException
+      )
+        throw err;
 
       throw new InternalServerErrorException({
         code: CodeErrors.FAIL_TO_GET_CONTRACTS,

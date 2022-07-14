@@ -21,6 +21,9 @@ export class File extends BaseEntity {
   @Column()
   fileName: string;
 
+  @Column()
+  originalName: string;
+
   @CreateDateColumn()
   createdAt?: Date;
 

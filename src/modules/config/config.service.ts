@@ -43,6 +43,8 @@ export class ConfigService implements OnModuleInit {
     envConfig.sendingblueApiKey = config.SENDINBLUE_API_KEY;
     envConfig.senderEmail = config.MAIL_SENDER_EMAIL;
     envConfig.senderName = config.MAIL_SENDER_NAME;
+    envConfig.appUrl = config.APP_URL;
+    envConfig.appResetPasswordPath = config.APP_RESET_PASSWORD_PATH;
     envConfig.hashKey = config.HASH_KEY;
 
     return envConfig;

@@ -6,7 +6,6 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BaseEntity,
-  OneToMany,
   ManyToOne,
   OneToOne,
   JoinColumn,
@@ -21,6 +20,9 @@ export class Customer extends BaseEntity {
 
   @Column()
   customerName: string;
+
+  @Column()
+  document: string;
 
   @Column()
   cityId: number;

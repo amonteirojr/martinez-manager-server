@@ -8,5 +8,6 @@ import { System } from './entities/system.entity';
   imports: [TypeOrmModule.forFeature([System])],
   controllers: [SystemController],
   providers: [SystemService],
+  exports: [SystemService],
 })
 export class SystemModule {}

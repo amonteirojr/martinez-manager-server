@@ -21,6 +21,8 @@ import { AlterTableCustomersAddTypeId1657505910089 } from '../../migrations/1657
 import { CustomerType } from '../modules/customer-type/entities/customer-type.entity';
 import { File } from '../modules/file/entitites/file.entity';
 import { CreateFilesTable1657603283224 } from '../../migrations/1657603283224-CreateFilesTable';
+import { AlterTableCustomersAddCNPJ1657647940065 } from '../../migrations/1657647940065-AlterTableCustomersAddCNPJ';
+import { AlterTableFilesAddOriginalname1657764395639 } from '../../migrations/1657764395639-AlterTableFilesAddOriginalname';
 
 const config = new ConfigService();
 
@@ -45,6 +47,8 @@ const AppDataSource = new DataSource({
     CreateCustomerTypesTable1657505608590,
     AlterTableCustomersAddTypeId1657505910089,
     CreateFilesTable1657603283224,
+    AlterTableCustomersAddCNPJ1657647940065,
+    AlterTableFilesAddOriginalname1657764395639,
   ],
   logging: false,
 });

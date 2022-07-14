@@ -52,6 +52,14 @@ export class CityService {
     cityPopulation: number,
   ): Promise<City> {
     try {
+      const existingCity = await this.cityRepository.findOne({
+        where: { ibgeCode: ibgeId },
+      });
+
+      if (existingCity) {
+        return existingCity;
+      }
+
       const ibgeCityData = await this.ibgeService.getCityById(ibgeId);
 
       if (!ibgeCityData) {

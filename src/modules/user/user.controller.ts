@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   HttpCode,
   HttpStatus,
   Param,
@@ -15,6 +16,7 @@ import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 import { CreateUserDTO } from './dto/create-user.dto';
+import { ResetPasswordDTO } from './dto/reset-password.dto';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
 
@@ -28,6 +30,17 @@ export class UserController {
   async createUser(@Res() res: Response, @Body() createUserDTO: CreateUserDTO) {
     const user = await this.userService.createUser(createUserDTO);
     return res.send(user);
+  }
+
+  @Post('/password/reset')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(
+    @Res() res: Response,
+    @Body() resetPasswordDTO: ResetPasswordDTO,
+    @Headers('resetToken') resetToken: string,
+  ) {
+    await this.userService.resetPassword(resetPasswordDTO, resetToken);
+    return res.send();
   }
 
   @Get('/:id')

@@ -5,8 +5,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BaseEntity,
-  OneToMany,
-  JoinColumn,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { Contract } from '../../../modules/contract/entitites/contract.entity';
 
@@ -26,8 +26,4 @@ export class System extends BaseEntity {
 
   @UpdateDateColumn()
   updatedAt?: Date;
-
-  @OneToMany(() => Contract, (contract) => contract.systems)
-  @JoinColumn({ name: 'contractId' })
-  contracts?: Contract[];
 }

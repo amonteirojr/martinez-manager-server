@@ -4,9 +4,11 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { firstValueFrom } from 'rxjs';
 import { CodeErrors } from 'src/shared/code-errors.enum';
 import { EmailTemplates } from 'src/shared/email-templates.enum';
+import { jwtConstants } from '../auth/constants';
 import { ConfigService } from '../config/config.service';
 import { UserService } from '../user/user.service';
 import { PasswordRecoveryDTO } from './dto/password-recovery.dto';
@@ -19,6 +21,7 @@ export class NotificationService {
     private readonly userService: UserService,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private jwtService: JwtService,
   ) {}
 
   async sendEmail(sendEmailDTO: SendEmailDTO): Promise<void> {
@@ -99,6 +102,16 @@ export class NotificationService {
           message: 'User email not found',
         });
       }
+
+      const tokenPayload = {
+        email: exists.email,
+        sub: exists.userId,
+      };
+
+      const resetToken = this.jwtService.sign(tokenPayload, {
+        secret: jwtConstants.secret,
+      });
+
       const emailPayload = {
         subject: 'Recuperação de senha - Martinez Manager',
         templateId: EmailTemplates.PASSWORD_RECOVERY,
@@ -109,6 +122,7 @@ export class NotificationService {
         to: [{ email: dto.receiver, name: exists.firstname }],
         params: {
           userName: exists.firstname,
+          buttonLink: `${this.configService.envConfig.appUrl}${this.configService.envConfig.appResetPasswordPath}?token=${resetToken}`,
         },
       };
 

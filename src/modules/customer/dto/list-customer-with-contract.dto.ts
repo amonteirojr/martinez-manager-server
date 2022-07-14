@@ -21,6 +21,14 @@ export class CustomerWithContractDTO {
   customerName: string;
 
   @ApiProperty({
+    description: 'Documento do cliente',
+    example: '01001001000113',
+    type: String,
+  })
+  @IsString()
+  document: string;
+
+  @ApiProperty({
     description: 'Nome da cidade',
     example: 'Votuporanga',
     type: String,

@@ -10,6 +10,8 @@ import {
   JoinColumn,
   JoinTable,
   OneToOne,
+  ManyToMany,
+  OneToMany,
 } from 'typeorm';
 import { BiddingModalityEnum } from '../../../enums/BiddingModality';
 import { PaymentModesEnum } from '../../../enums/PaymentMode';
@@ -19,7 +21,7 @@ import { System } from '../../../modules/system/entities/system.entity';
 @Entity({ name: 'contracts' })
 export class Contract extends BaseEntity {
   @PrimaryGeneratedColumn('identity')
-  contractId: number;
+  contractId?: number;
 
   @Column()
   customerId: number;
@@ -82,12 +84,15 @@ export class Contract extends BaseEntity {
   @JoinColumn({ name: 'customerId' })
   customer?: Customer;
 
-  @ManyToOne(() => System, (system) => system.contracts)
-  @JoinTable({ name: 'contracts_systems' })
-  @JoinColumn({ name: 'contractId' })
+  @ManyToMany(() => System)
+  @JoinTable({
+    name: 'contracts_systems',
+    joinColumn: { name: 'contractId' },
+    inverseJoinColumn: { name: 'systemId' },
+  })
   systems?: System[];
 
-  @ManyToOne(() => File, (file) => file.contract)
+  @OneToMany(() => File, (file) => file.contract)
   @JoinColumn({ name: 'contractId' })
   files?: File[];
 }

@@ -36,6 +36,7 @@ export class FileService {
         return {
           contractId,
           fileName: file.filename,
+          originalName: file.originalname,
         } as File;
       });
 

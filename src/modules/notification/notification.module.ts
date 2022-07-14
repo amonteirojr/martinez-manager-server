@@ -5,11 +5,13 @@ import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '../config/config.module';
 import { ConfigService } from '../config/config.service';
 import { UserModule } from '../user/user.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     UserModule,
     ConfigModule,
+    JwtModule,
     HttpModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

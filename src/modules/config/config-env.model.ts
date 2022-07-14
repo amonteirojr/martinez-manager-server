@@ -63,6 +63,12 @@ export class ConfigEnv {
   senderName: string;
 
   @IsString()
+  appUrl: string;
+
+  @IsString()
+  appResetPasswordPath: string;
+
+  @IsString()
   hashKey: string;
 
   get isProduction(): boolean {
