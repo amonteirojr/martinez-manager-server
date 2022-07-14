@@ -11,7 +11,6 @@ import {
 } from 'class-validator';
 import { BiddingModalityEnum } from 'src/enums/BiddingModality';
 import { PaymentModesEnum } from 'src/enums/PaymentMode';
-import { System } from 'src/modules/system/entities/system.entity';
 
 export class CreateOrUpdateContractDTO {
   @ApiProperty({

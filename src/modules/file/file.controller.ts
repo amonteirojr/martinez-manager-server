@@ -1,8 +1,6 @@
 import {
-  Body,
   Controller,
   Get,
-  Header,
   Headers,
   HttpCode,
   HttpStatus,
@@ -13,11 +11,9 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
-import { ApiResponse } from '@nestjs/swagger';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 import { FileService } from './file.service';
@@ -47,7 +43,7 @@ export class FileController {
     return await this.fileService.createUploadedFiles(files, contractId);
   }
 
-  @Get('/:contractId')
+  @Get('/contract/:contractId')
   @HttpCode(HttpStatus.OK)
   async getFiles(
     @Res() res: Response,
@@ -55,5 +51,10 @@ export class FileController {
   ) {
     const files = await this.fileService.getFiles(contractId);
     return res.send(files);
+  }
+
+  @Get('/:imgpath')
+  seeUploadedFile(@Param('imgpath') image, @Res() res) {
+    return res.sendFile(image, { root: './upload/files' });
   }
 }

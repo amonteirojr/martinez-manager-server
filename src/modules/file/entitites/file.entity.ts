@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
   BaseEntity,
   JoinColumn,
-  OneToMany,
+  ManyToOne,
 } from 'typeorm';
 
 @Entity({ name: 'files' })
@@ -30,7 +30,7 @@ export class File extends BaseEntity {
   @UpdateDateColumn()
   updatedAt?: Date;
 
-  @OneToMany(() => Contract, (contract) => contract.files)
+  @ManyToOne(() => Contract, (contract) => contract.files)
   @JoinColumn({ name: 'contractId' })
   contract?: Contract;
 }

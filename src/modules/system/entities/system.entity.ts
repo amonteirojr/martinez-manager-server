@@ -26,4 +26,12 @@ export class System extends BaseEntity {
 
   @UpdateDateColumn()
   updatedAt?: Date;
+
+  @ManyToMany(() => Contract)
+  @JoinTable({
+    name: 'contracts_systems',
+    joinColumn: { name: 'systemId' },
+    inverseJoinColumn: { name: 'contractId' },
+  })
+  contracts?: Contract[];
 }

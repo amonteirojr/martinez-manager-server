@@ -121,23 +121,31 @@ export class ContractService {
     data: CreateOrUpdateContractDTO,
   ): Promise<UpdateContractResponseDTO> {
     try {
+      const ids = data.systems.map((system) => system.systemId);
+      const systems = await this.systemService.getSystemListByIds(ids);
+
       const updated = await this.contractRepository.update(
         { contractId: id },
-        data,
+        {
+          ...data,
+          systems,
+        },
       );
 
-      if (updated.affected > 0)
+      if (updated)
         this.logger.log(
           `Contract id ${id} and number ${data.ourContractNumber} was updated`,
         );
 
       return { contractId: id };
     } catch (err) {
-      this.logger.error(`Failed to get contract by id ${id}. Cause: ${err}`);
+      this.logger.error(
+        `Failed to update contract with id ${id}. Cause: ${err}`,
+      );
 
       throw new InternalServerErrorException({
-        code: CodeErrors.FAIL_TO_GET_CONTRACTS,
-        message: `Failed to get contract by id ${id}`,
+        code: CodeErrors.FAIL_TO_UPDATE_CONTRACT,
+        message: `Failed to update contract with id ${id}`,
       });
     }
   }
