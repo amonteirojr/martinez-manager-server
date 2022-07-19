@@ -45,6 +45,10 @@ export class ConfigService implements OnModuleInit {
     envConfig.senderName = config.MAIL_SENDER_NAME;
     envConfig.appUrl = config.APP_URL;
     envConfig.appResetPasswordPath = config.APP_RESET_PASSWORD_PATH;
+    envConfig.jwtSecret = config.JWT_SECRET;
+    envConfig.refreshTokenSecret = config.JWT_REFRESH_SECRET;
+    envConfig.jwtRefreshExpirationTime = config.JWT_REFRESH_EXPIRATION_TIME;
+    envConfig.jwtSecretExpirationTime = config.JWT_SECRET_EXPIRATION_TIME;
     envConfig.hashKey = config.HASH_KEY;
 
     return envConfig;

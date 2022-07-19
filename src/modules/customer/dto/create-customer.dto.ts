@@ -52,4 +52,63 @@ export class CreateCustomerDTO {
   @IsOptional()
   @IsNumber()
   cityPopulation?: number;
+
+  @ApiProperty({
+    description: 'Pessoa para contato na entidade',
+    example: 'Fulano de Tal',
+    type: String,
+  })
+  @IsString()
+  @IsOptional()
+  referenceContactName?: string;
+
+  @ApiProperty({
+    description: 'Telefone de pessoa para contato',
+    example: '17998887766',
+    type: String,
+  })
+  @IsString()
+  @IsOptional()
+  referenceContactPhone?: string;
+
+  @ApiProperty({
+    description: 'Endereço da entidade',
+    example: 'Rua dos Bobos',
+    type: String,
+  })
+  @IsString()
+  address: string;
+
+  @ApiProperty({
+    description: 'Número do endereço',
+    example: '0',
+    type: String,
+  })
+  @IsString()
+  number: string;
+
+  @ApiProperty({
+    description: 'Complemento do endereço',
+    example: 'Sala 1',
+    type: String,
+  })
+  @IsString()
+  @IsOptional()
+  complement?: string;
+
+  @ApiProperty({
+    description: 'Bairro da entidade',
+    example: 'Bairro Alto',
+    type: String,
+  })
+  @IsString()
+  neighborhood: string;
+
+  @ApiProperty({
+    description: 'CEP da entidade',
+    example: '99999-000',
+    type: String,
+  })
+  @IsString()
+  zipCode: string;
 }

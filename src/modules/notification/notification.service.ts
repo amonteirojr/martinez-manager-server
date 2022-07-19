@@ -109,7 +109,7 @@ export class NotificationService {
       };
 
       const resetToken = this.jwtService.sign(tokenPayload, {
-        secret: jwtConstants.secret,
+        secret: jwtConstants.jwtSecret,
       });
 
       const emailPayload = {

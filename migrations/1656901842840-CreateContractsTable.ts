@@ -70,7 +70,7 @@ export class CreateContractsTable1656901842840 implements MigrationInterface {
         type: 'varchar(100)',
       },
       {
-        name: 'biddingClassification',
+        name: 'biddingNumber',
         type: 'varchar',
       },
       {

@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/modules/user/user.service';
 
 import * as bcrypt from 'bcrypt';
+import { jwtConstants } from './constants';
 
 @Injectable()
 export class AuthService {
@@ -30,6 +31,9 @@ export class AuthService {
     };
     this.logger.log(`User ${user.email} is logged in`);
     return {
+      refresh_token: this.jwtService.sign(payload, {
+        secret: jwtConstants.refreshSecret,
+      }),
       access_token: this.jwtService.sign(payload),
       ...user,
     };

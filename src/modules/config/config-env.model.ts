@@ -69,6 +69,18 @@ export class ConfigEnv {
   appResetPasswordPath: string;
 
   @IsString()
+  jwtSecret: string;
+
+  @IsString()
+  refreshTokenSecret: string;
+
+  @IsString()
+  jwtSecretExpirationTime: string;
+
+  @IsString()
+  jwtRefreshExpirationTime: string;
+
+  @IsString()
   hashKey: string;
 
   get isProduction(): boolean {

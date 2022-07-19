@@ -33,6 +33,13 @@ export class CustomerService {
         customerName: data.customerName,
         typeId: data.customerTypeId,
         document: data.document,
+        address: data.address,
+        complement: data.complement,
+        neighborhood: data.neighborhood,
+        number: data.number,
+        referenceContactName: data.referenceContactName,
+        referenceContactPhone: data.referenceContactPhone,
+        zipCode: data.zipCode,
       };
 
       return await this.customerRepository.create(newCustomer).save();

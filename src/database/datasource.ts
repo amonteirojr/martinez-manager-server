@@ -23,6 +23,7 @@ import { File } from '../modules/file/entitites/file.entity';
 import { CreateFilesTable1657603283224 } from '../../migrations/1657603283224-CreateFilesTable';
 import { AlterTableCustomersAddCNPJ1657647940065 } from '../../migrations/1657647940065-AlterTableCustomersAddCNPJ';
 import { AlterTableFilesAddOriginalname1657764395639 } from '../../migrations/1657764395639-AlterTableFilesAddOriginalname';
+import { AlterTableCustomersAddColumns1658195518592 } from '../../migrations/1658195518592-AlterTableCustomersAddColumns';
 
 const config = new ConfigService();
 
@@ -49,6 +50,7 @@ const AppDataSource = new DataSource({
     CreateFilesTable1657603283224,
     AlterTableCustomersAddCNPJ1657647940065,
     AlterTableFilesAddOriginalname1657764395639,
+    AlterTableCustomersAddColumns1658195518592,
   ],
   logging: false,
 });

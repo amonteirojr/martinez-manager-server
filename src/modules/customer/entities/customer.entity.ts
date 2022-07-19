@@ -25,10 +25,31 @@ export class Customer extends BaseEntity {
   document: string;
 
   @Column()
-  cityId: number;
+  typeId: number;
 
   @Column()
-  typeId: number;
+  referenceContactName?: string;
+
+  @Column()
+  referenceContactPhone?: string;
+
+  @Column()
+  address: string;
+
+  @Column()
+  number: string;
+
+  @Column()
+  complement?: string;
+
+  @Column()
+  neighborhood: string;
+
+  @Column()
+  zipCode: string;
+
+  @Column()
+  cityId: number;
 
   @CreateDateColumn()
   createdAt?: Date;
