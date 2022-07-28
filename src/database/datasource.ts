@@ -27,6 +27,7 @@ import { AlterTableCustomersAddColumns1658195518592 } from '../../migrations/165
 import { CreateTableModules1658278152104 } from '../../migrations/1658278152104-CreateTableModules';
 import { SystemModule } from '../modules/system-module/entities/system-module.entity';
 import { ContractsSystemsModules } from '../modules/contracts-systems-modules/entities/contracts-systems-modules.entity';
+import { PopulateRolesTable1658979591363 } from '../../migrations/1658979591363-PopulateRolesTable';
 
 const config = new ConfigService();
 
@@ -66,6 +67,7 @@ const AppDataSource = new DataSource({
     AlterTableFilesAddOriginalname1657764395639,
     AlterTableCustomersAddColumns1658195518592,
     CreateTableModules1658278152104,
+    PopulateRolesTable1658979591363,
   ],
   logging: false,
 });
