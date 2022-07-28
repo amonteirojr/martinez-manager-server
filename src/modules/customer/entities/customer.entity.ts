@@ -9,6 +9,7 @@ import {
   ManyToOne,
   OneToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { City } from '../../../modules/city/entities/city.entity';
 import { Contract } from '../../../modules/contract/entitites/contract.entity';
@@ -57,8 +58,9 @@ export class Customer extends BaseEntity {
   @UpdateDateColumn()
   updatedAt?: Date;
 
-  @OneToOne(() => Contract)
-  contract?: Contract;
+  @OneToMany(() => Contract, (contract) => contract.customer)
+  @JoinColumn({ name: 'customerId' })
+  contracts?: Contract[];
 
   @ManyToOne(() => CustomerType, (customerType) => customerType.customers)
   @JoinColumn({ name: 'typeId' })

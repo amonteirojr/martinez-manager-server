@@ -19,15 +19,15 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "typeorm": "typeorm-ts-node-esm",
-    "migration:run": "npm run typeorm migration:run -d",
-    "migration:create": "npm run typeorm migration:create"
+    "migration:run": "typeorm-ts-node-esm migration:run -d src/database/datasource.ts",
+    "migration:create": "typeorm-ts-node-esm migration:create"
   },
   "dependencies": {
     "@nestjs/axios": "^0.1.0",
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
     "@nestjs/jwt": "^8.0.1",
+    "@nestjs/mapped-types": "*",
     "@nestjs/passport": "^8.2.2",
     "@nestjs/platform-express": "^8.0.0",
     "@nestjs/swagger": "^5.2.1",

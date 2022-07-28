@@ -11,7 +11,7 @@ import { ConfigService } from '../config/config.service';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        timeout: 60000,
+        timeout: 120000,
         maxRedirects: 5,
         baseURL: configService.envConfig.apiIbgeLocalidades,
       }),

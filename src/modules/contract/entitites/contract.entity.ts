@@ -59,11 +59,11 @@ export class Contract extends BaseEntity {
   @Column()
   customerResponsible: string;
 
-  @Column()
-  biddingClassification: string;
-
   @Column({ type: 'enum', enum: Object.keys(BiddingModalityEnum) })
   biddingModality: BiddingModalityEnum;
+
+  @Column()
+  biddingNumber: string;
 
   @Column()
   biddingModalityNumber: number;
@@ -80,17 +80,9 @@ export class Contract extends BaseEntity {
   @UpdateDateColumn()
   updatedAt?: Date;
 
-  @OneToOne(() => Customer)
+  @ManyToOne(() => Customer, (customer) => customer.contracts)
   @JoinColumn({ name: 'customerId' })
-  customer?: Customer;
-
-  @ManyToMany(() => System)
-  @JoinTable({
-    name: 'contracts_systems',
-    joinColumn: { name: 'contractId' },
-    inverseJoinColumn: { name: 'systemId' },
-  })
-  systems?: System[];
+  customer: Customer;
 
   @OneToMany(() => File, (file) => file.contract)
   @JoinColumn({ name: 'contractId' })

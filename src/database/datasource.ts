@@ -24,6 +24,9 @@ import { CreateFilesTable1657603283224 } from '../../migrations/1657603283224-Cr
 import { AlterTableCustomersAddCNPJ1657647940065 } from '../../migrations/1657647940065-AlterTableCustomersAddCNPJ';
 import { AlterTableFilesAddOriginalname1657764395639 } from '../../migrations/1657764395639-AlterTableFilesAddOriginalname';
 import { AlterTableCustomersAddColumns1658195518592 } from '../../migrations/1658195518592-AlterTableCustomersAddColumns';
+import { CreateTableModules1658278152104 } from '../../migrations/1658278152104-CreateTableModules';
+import { SystemModule } from '../modules/system-module/entities/system-module.entity';
+import { ContractsSystemsModules } from '../modules/contracts-systems-modules/entities/contracts-systems-modules.entity';
 
 const config = new ConfigService();
 
@@ -34,7 +37,18 @@ const AppDataSource = new DataSource({
   database: config.envConfig.typeormDatabase,
   username: config.envConfig.typeormUsername,
   password: config.envConfig.typeormPassword,
-  entities: [User, Role, Contract, Customer, System, City, CustomerType, File],
+  entities: [
+    User,
+    Role,
+    Contract,
+    Customer,
+    System,
+    City,
+    CustomerType,
+    File,
+    SystemModule,
+    ContractsSystemsModules,
+  ],
   synchronize: false,
   migrationsRun: true,
   migrations: [
@@ -51,6 +65,7 @@ const AppDataSource = new DataSource({
     AlterTableCustomersAddCNPJ1657647940065,
     AlterTableFilesAddOriginalname1657764395639,
     AlterTableCustomersAddColumns1658195518592,
+    CreateTableModules1658278152104,
   ],
   logging: false,
 });

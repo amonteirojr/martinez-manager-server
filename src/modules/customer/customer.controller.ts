@@ -49,12 +49,8 @@ export class CustomerController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
-  @ApiCreatedResponse({ type: Array<Customer> })
-  async getCustomerList(
-    @Res() res: Response,
-    @Query('contract') contract: boolean,
-  ) {
-    const result = await this.customerService.getAllCustomers(contract);
+  async getCustomerList(@Res() res: Response) {
+    const result = await this.customerService.getAllCustomers();
 
     return res.send(result);
   }

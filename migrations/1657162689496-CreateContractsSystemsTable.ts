@@ -1,16 +1,16 @@
+import { SystemsModulesType } from '../src/enums/SystemsModulesType';
 import {
   MigrationInterface,
   QueryRunner,
   Table,
   TableForeignKey,
-  TableUnique,
 } from 'typeorm';
 
 export class CreateContractsSystemsTable1657162689496
   implements MigrationInterface
 {
   table = new Table({
-    name: 'contracts_systems',
+    name: 'contracts_systems_modules',
     columns: [
       {
         name: 'id',
@@ -20,8 +20,28 @@ export class CreateContractsSystemsTable1657162689496
         isGenerated: true,
       },
       {
-        name: 'systemId',
+        name: 'type',
+        type: 'enum',
+        enum: Object.keys(SystemsModulesType),
+      },
+      {
+        name: 'systemModuleId',
         type: 'integer',
+      },
+      {
+        name: 'deploymentDate',
+        type: 'timestamp',
+        isNullable: true,
+      },
+      {
+        name: 'deploymentResponsible',
+        type: 'varchar(50)',
+        isNullable: true,
+      },
+      {
+        name: 'comments',
+        type: 'text',
+        isNullable: true,
       },
       {
         name: 'contractId',
@@ -46,26 +66,12 @@ export class CreateContractsSystemsTable1657162689496
 
     await queryRunner.createForeignKeys(this.table, [
       new TableForeignKey({
-        columnNames: ['systemId'],
-        referencedColumnNames: ['systemId'],
-        referencedTableName: 'systems',
-        name: 'FK_CONTRACTS_SYSTEMS_SYSTEMS',
-      }),
-      new TableForeignKey({
         columnNames: ['contractId'],
         referencedColumnNames: ['contractId'],
         referencedTableName: 'contracts',
-        name: 'FK_CONTRACTS_SYSTEMS_CONTRACTS',
+        name: 'FK_CONTRACTS_SYSTEMS_MODULES_CONTRACTS',
       }),
     ]);
-
-    await queryRunner.createUniqueConstraint(
-      this.table,
-      new TableUnique({
-        columnNames: ['systemId', 'contractId'],
-        name: 'UK_CONTRACTS_SYSTEMS',
-      }),
-    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

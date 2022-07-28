@@ -15,6 +15,9 @@ import { IbgeSidraModule } from './modules/ibge-sidra/ibge-sidra.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { FileModule } from './modules/file/file.module';
 import { NotificationModule } from './modules/notification/notification.module';
+import { SystemModuleController } from './modules/system-module/system-module.controller';
+import { SystemModuleModule } from './modules/system-module/system-module.module';
+import { ContractsSystemsModulesModule } from './modules/contracts-systems-modules/contracts-systems-modules.module';
 import AppDataSource from './database/datasource';
 
 @Module({
@@ -40,8 +43,10 @@ import AppDataSource from './database/datasource';
     IbgeSidraModule,
     FileModule,
     NotificationModule,
+    SystemModuleModule,
+    ContractsSystemsModulesModule,
   ],
 
-  controllers: [AppController],
+  controllers: [AppController, SystemModuleController],
 })
 export class AppModule {}

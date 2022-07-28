@@ -5,8 +5,12 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import AppDataSource from 'src/database/datasource';
+import { SystemsModulesType } from 'src/enums/SystemsModulesType';
 import { CodeErrors } from 'src/shared/code-errors.enum';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { ContractsSystemsModules } from '../contracts-systems-modules/entities/contracts-systems-modules.entity';
+import { System } from '../system/entities/system.entity';
 import { SystemService } from '../system/system.service';
 import { ContractInfoCountResponseDTO } from './dto/contract-info-count-response.dto';
 import { ContractTableResponseDTO } from './dto/contract-table-response.dto';
@@ -71,8 +75,6 @@ export class ContractService {
       const response: ContractTableResponseDTO[] = contracts.map((contract) => {
         return {
           contractId: contract.contractId,
-          cityName: contract.customer.city.cityName,
-          customerName: contract.customer.customerName,
           ourContractNumber: `${contract.ourContractNumber}/${contract.ourContractYear}`,
           validity: new Date(contract.finalValidity).toLocaleString('pt-BR', {
             day: '2-digit',
@@ -102,7 +104,6 @@ export class ContractService {
       return await this.contractRepository.findOne({
         where: { contractId: id },
         relations: {
-          systems: true,
           files: true,
         },
       });
@@ -120,22 +121,78 @@ export class ContractService {
     id: number,
     data: CreateOrUpdateContractDTO,
   ): Promise<UpdateContractResponseDTO> {
-    try {
-      const ids = data.systems.map((system) => system.systemId);
-      const systems = await this.systemService.getSystemListByIds(ids);
+    const { systems, modules } = data;
 
-      const updated = await this.contractRepository.update(
+    const dataSource = await AppDataSource.initialize();
+
+    const queryRunner = dataSource.createQueryRunner();
+    if (!queryRunner.connection) await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    delete data.modules;
+    delete data.systems;
+
+    try {
+      const updated = await queryRunner.manager.update(
+        Contract,
         { contractId: id },
-        {
-          ...data,
-          systems,
-        },
+        data,
       );
+
+      if (systems && systems.length > 0) {
+        Promise.all(
+          systems.map(async (system) => {
+            const newSystem = {
+              ...system,
+              id: system.id,
+              type: SystemsModulesType.SYSTEM,
+              contractId: id,
+            } as ContractsSystemsModules;
+
+            await queryRunner.manager.update(
+              ContractsSystemsModules,
+              { id: system.id },
+              newSystem,
+            );
+          }),
+        );
+      } else {
+        await queryRunner.manager.delete(ContractsSystemsModules, {
+          contractId: id,
+          type: SystemsModulesType.SYSTEM,
+        });
+      }
+
+      if (modules && modules.length > 0) {
+        Promise.all(
+          modules.map(async (mod) => {
+            const newModule = {
+              ...mod,
+              id: mod.id,
+              type: SystemsModulesType.MODULE,
+              contractId: id,
+            } as ContractsSystemsModules;
+
+            await queryRunner.manager.update(
+              ContractsSystemsModules,
+              { id: mod.id },
+              newModule,
+            );
+          }),
+        );
+      } else {
+        await queryRunner.manager.delete(ContractsSystemsModules, {
+          contractId: id,
+          type: SystemsModulesType.MODULE,
+        });
+      }
 
       if (updated)
         this.logger.log(
           `Contract id ${id} and number ${data.ourContractNumber} was updated`,
         );
+
+      await queryRunner.commitTransaction();
 
       return { contractId: id };
     } catch (err) {
@@ -147,30 +204,55 @@ export class ContractService {
         code: CodeErrors.FAIL_TO_UPDATE_CONTRACT,
         message: `Failed to update contract with id ${id}`,
       });
+    } finally {
+      await queryRunner.release();
     }
   }
 
   async createContract(data: CreateOrUpdateContractDTO): Promise<Contract> {
+    const { systems, modules } = data;
+
+    const dataSource = await AppDataSource.initialize();
+
+    const queryRunner = dataSource.createQueryRunner();
+    if (!queryRunner.connection) await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
-      const ids = data.systems.map((system) => system.systemId);
-      const systems = await this.systemService.getSystemListByIds(ids);
+      const contract = await queryRunner.manager.save(Contract, data);
 
-      if (!systems) {
-        this.logger.error(`Systems were not found. ${JSON.stringify(ids)}`);
+      if (systems && systems.length > 0) {
+        const newSystems = systems.map(
+          (system) =>
+            ({
+              ...system,
+              type: SystemsModulesType.SYSTEM,
+              contractId: contract.contractId,
+            } as ContractsSystemsModules),
+        );
 
-        throw new BadRequestException({
-          message: 'Systems id were not found.',
-          code: CodeErrors.SYSTEMS_WERE_NOT_FOUND,
+        await queryRunner.manager.save(ContractsSystemsModules, newSystems);
+      }
+
+      if (modules && modules.length > 0) {
+        const newModules = modules.map(
+          (mod) =>
+            ({
+              ...mod,
+              type: SystemsModulesType.MODULE,
+              contractId: contract.contractId,
+            } as ContractsSystemsModules),
+        );
+
+        await queryRunner.manager.save(ContractsSystemsModules, {
+          data: newModules,
         });
       }
 
-      const contract = {
-        ...data,
-        systems,
-      } as Contract;
-
-      return await this.contractRepository.create(contract).save();
+      await queryRunner.commitTransaction();
+      return contract;
     } catch (err) {
+      await queryRunner.rollbackTransaction();
       this.logger.error(
         `Failed to create contract number ${data.ourContractNumber}. Cause: ${err}`,
       );
@@ -185,6 +267,8 @@ export class ContractService {
         code: CodeErrors.FAIL_TO_GET_CONTRACTS,
         message: `Failed to create contract ${data.ourContractNumber}`,
       });
+    } finally {
+      await queryRunner.release();
     }
   }
 }

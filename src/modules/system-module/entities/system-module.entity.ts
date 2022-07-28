@@ -1,4 +1,4 @@
-import { SystemModule } from '../../system-module/entities/system-module.entity';
+import { System } from '../../system/entities/system.entity';
 import {
   Entity,
   Column,
@@ -6,17 +6,20 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BaseEntity,
-  OneToMany,
+  ManyToOne,
   JoinColumn,
 } from 'typeorm';
 
-@Entity({ name: 'systems' })
-export class System extends BaseEntity {
+@Entity({ name: 'modules' })
+export class SystemModule extends BaseEntity {
   @PrimaryGeneratedColumn('identity')
-  systemId?: number;
+  moduleId?: number;
 
   @Column()
   name: string;
+
+  @Column()
+  systemId?: number;
 
   @Column()
   description: string;
@@ -27,7 +30,7 @@ export class System extends BaseEntity {
   @UpdateDateColumn()
   updatedAt?: Date;
 
-  @OneToMany(() => SystemModule, (systemModule) => systemModule.system)
+  @ManyToOne(() => System, (system) => system.systemModules)
   @JoinColumn({ name: 'systemId' })
-  systemModules?: SystemModule[];
+  system?: System;
 }

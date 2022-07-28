@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsArray,
   IsEnum,
   IsISO8601,
   IsNotEmpty,
@@ -11,6 +12,30 @@ import {
 } from 'class-validator';
 import { BiddingModalityEnum } from 'src/enums/BiddingModality';
 import { PaymentModesEnum } from 'src/enums/PaymentMode';
+import { SystemsModulesType } from 'src/enums/SystemsModulesType';
+
+class SystemsModulesDTO {
+  @IsNumber()
+  id?: number;
+
+  @IsNumber()
+  systemModuleId: number;
+
+  @IsEnum(SystemsModulesType)
+  type?: SystemsModulesType;
+
+  @IsString()
+  @IsOptional()
+  deploymentDate?: string;
+
+  @IsString()
+  @IsOptional()
+  deploymentResponsible?: string;
+
+  @IsString()
+  @IsOptional()
+  comments?: string;
+}
 
 export class CreateOrUpdateContractDTO {
   @ApiProperty({
@@ -88,6 +113,15 @@ export class CreateOrUpdateContractDTO {
   initialValue: number;
 
   @ApiProperty({
+    description: 'Número da licitação',
+    example: '1234',
+    type: String,
+  })
+  @IsString()
+  @IsNotEmpty()
+  biddingNumber: string;
+
+  @ApiProperty({
     description: 'Data de assinatura do contrato',
     example: '2022-10-01',
     format: 'ISO_8601',
@@ -131,15 +165,6 @@ export class CreateOrUpdateContractDTO {
   customerResponsible: string;
 
   @ApiProperty({
-    description: 'Classificação do processo licitatório',
-    example: 'Example',
-    type: String,
-  })
-  @IsString()
-  @IsOptional()
-  biddingClassification?: string;
-
-  @ApiProperty({
     description: 'Modalidade do proc. licitatório',
     example: 'SOLICITATION_OF_PRICE',
     enum: BiddingModalityEnum,
@@ -173,10 +198,9 @@ export class CreateOrUpdateContractDTO {
   @IsString()
   paymentMode: PaymentModesEnum;
 
-  @ApiProperty({
-    description: 'IDs dos sistemas',
-    example: '[{systemId: 1}]',
-    enum: PaymentModesEnum,
-  })
-  systems: { systemId: number }[];
+  @IsArray()
+  systems?: SystemsModulesDTO[];
+
+  @IsArray()
+  modules?: SystemsModulesDTO[];
 }

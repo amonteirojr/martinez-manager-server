@@ -10,6 +10,7 @@ import { CityService } from '../city/city.service';
 import { City } from '../city/entities/city.entity';
 
 import { CreateCustomerDTO } from './dto/create-customer.dto';
+import { CustomerResponseDTO } from './dto/customer-response.dto';
 import { Customer } from './entities/customer.entity';
 
 @Injectable()
@@ -75,6 +76,14 @@ export class CustomerService {
         cityId: existingCity?.cityId || createdCity.cityId,
         customerName: data.customerName,
         typeId: data.customerTypeId,
+        document: data.document,
+        address: data.address,
+        complement: data.complement,
+        neighborhood: data.neighborhood,
+        number: data.number,
+        referenceContactName: data.referenceContactName,
+        referenceContactPhone: data.referenceContactPhone,
+        zipCode: data.zipCode,
       };
 
       await this.customerRepository.update({ customerId }, updateCustomer);
@@ -93,11 +102,39 @@ export class CustomerService {
     }
   }
 
-  async getAllCustomers(contract: boolean): Promise<Customer[]> {
+  async getAllCustomers(): Promise<CustomerResponseDTO[]> {
     try {
-      return await this.customerRepository.find({
-        relations: { customerType: true, city: true, contract },
+      const customers = await this.customerRepository.find({
+        relations: { customerType: true, city: true, contracts: true },
+        order: {
+          customerId: 'ASC',
+        },
       });
+
+      const response = customers.map(
+        (customer) =>
+          ({
+            customerName: customer.customerName,
+            address: customer.address,
+            cityId: customer.cityId,
+            typeId: customer.typeId,
+            document: customer.document,
+            neighborhood: customer.neighborhood,
+            number: customer.number,
+            zipCode: customer.zipCode,
+            cityPopulation: customer.city.cityPopulation,
+            complement: customer.complement,
+            referenceContactName: customer.referenceContactName,
+            cityName: customer.city.cityName,
+            customerId: customer.customerId,
+            referenceContactPhone: customer.referenceContactPhone,
+            typeName: customer.customerType.name,
+            customerType: customer.customerType,
+            city: customer.city,
+          } as CustomerResponseDTO),
+      );
+
+      return response;
     } catch (err) {
       this.logger.error(`Failed to get customers. Cause: ${err}`);
 
