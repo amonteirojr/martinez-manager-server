@@ -1,4 +1,4 @@
-import { File } from '../../../modules/file/entitites/file.entity';
+import { File } from '../../file/entitites/file.entity';
 import {
   Entity,
   Column,
@@ -8,15 +8,13 @@ import {
   BaseEntity,
   ManyToOne,
   JoinColumn,
-  JoinTable,
-  OneToOne,
-  ManyToMany,
   OneToMany,
+  OneToOne,
 } from 'typeorm';
 import { BiddingModalityEnum } from '../../../enums/BiddingModality';
 import { PaymentModesEnum } from '../../../enums/PaymentMode';
-import { Customer } from '../../../modules/customer/entities/customer.entity';
-import { System } from '../../../modules/system/entities/system.entity';
+import { Customer } from '../../customer/entities/customer.entity';
+import { Admentment } from '../../admentment/entities/admentment.entity';
 
 @Entity({ name: 'contracts' })
 export class Contract extends BaseEntity {
@@ -87,4 +85,8 @@ export class Contract extends BaseEntity {
   @OneToMany(() => File, (file) => file.contract)
   @JoinColumn({ name: 'contractId' })
   files?: File[];
+
+  @OneToOne(() => Admentment)
+  @JoinColumn({ name: 'contractId' })
+  admentment?: Admentment;
 }

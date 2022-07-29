@@ -18,6 +18,9 @@ import { NotificationModule } from './modules/notification/notification.module';
 import { SystemModuleController } from './modules/system-module/system-module.controller';
 import { SystemModuleModule } from './modules/system-module/system-module.module';
 import { ContractsSystemsModulesModule } from './modules/contracts-systems-modules/contracts-systems-modules.module';
+import { AdmentmentModule } from './modules/admentment/admentment.module';
+import { AdmentmentTypeModule } from './modules/admentment-type/admentment-type.module';
+import { AdmentmentsSystemsModulesModule } from './modules/admentments-systems-modules/admentments-systems-modules.module';
 import AppDataSource from './database/datasource';
 
 @Module({
@@ -45,6 +48,9 @@ import AppDataSource from './database/datasource';
     NotificationModule,
     SystemModuleModule,
     ContractsSystemsModulesModule,
+    AdmentmentModule,
+    AdmentmentTypeModule,
+    AdmentmentsSystemsModulesModule,
   ],
 
   controllers: [AppController, SystemModuleController],

@@ -12,9 +12,9 @@ import {
 } from 'class-validator';
 import { BiddingModalityEnum } from 'src/enums/BiddingModality';
 import { PaymentModesEnum } from 'src/enums/PaymentMode';
-import { SystemsModulesType } from 'src/enums/SystemsModulesType';
+import { SystemsModulesType } from '../../../enums/SystemsModulesType';
 
-class SystemsModulesDTO {
+export class SystemsModulesDTO {
   @IsNumber()
   id?: number;
 

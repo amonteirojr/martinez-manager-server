@@ -6,11 +6,10 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import AppDataSource from 'src/database/datasource';
-import { SystemsModulesType } from 'src/enums/SystemsModulesType';
+import { SystemsModulesType } from '../../enums/SystemsModulesType';
 import { CodeErrors } from 'src/shared/code-errors.enum';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { ContractsSystemsModules } from '../contracts-systems-modules/entities/contracts-systems-modules.entity';
-import { System } from '../system/entities/system.entity';
 import { SystemService } from '../system/system.service';
 import { ContractInfoCountResponseDTO } from './dto/contract-info-count-response.dto';
 import { ContractTableResponseDTO } from './dto/contract-table-response.dto';
@@ -123,7 +122,9 @@ export class ContractService {
   ): Promise<UpdateContractResponseDTO> {
     const { systems, modules } = data;
 
-    const dataSource = await AppDataSource.initialize();
+    const dataSource = !AppDataSource.isInitialized
+      ? await AppDataSource.initialize()
+      : AppDataSource;
 
     const queryRunner = dataSource.createQueryRunner();
     if (!queryRunner.connection) await queryRunner.connect();
@@ -139,52 +140,42 @@ export class ContractService {
         data,
       );
 
+      await queryRunner.manager.delete(ContractsSystemsModules, {
+        contractId: id,
+        type: SystemsModulesType.SYSTEM,
+      });
+
       if (systems && systems.length > 0) {
         Promise.all(
           systems.map(async (system) => {
             const newSystem = {
               ...system,
-              id: system.id,
               type: SystemsModulesType.SYSTEM,
               contractId: id,
             } as ContractsSystemsModules;
 
-            await queryRunner.manager.update(
-              ContractsSystemsModules,
-              { id: system.id },
-              newSystem,
-            );
+            await queryRunner.manager.save(ContractsSystemsModules, newSystem);
           }),
         );
-      } else {
-        await queryRunner.manager.delete(ContractsSystemsModules, {
-          contractId: id,
-          type: SystemsModulesType.SYSTEM,
-        });
       }
+
+      await queryRunner.manager.delete(ContractsSystemsModules, {
+        contractId: id,
+        type: SystemsModulesType.MODULE,
+      });
 
       if (modules && modules.length > 0) {
         Promise.all(
           modules.map(async (mod) => {
             const newModule = {
               ...mod,
-              id: mod.id,
               type: SystemsModulesType.MODULE,
               contractId: id,
             } as ContractsSystemsModules;
 
-            await queryRunner.manager.update(
-              ContractsSystemsModules,
-              { id: mod.id },
-              newModule,
-            );
+            await queryRunner.manager.save(ContractsSystemsModules, newModule);
           }),
         );
-      } else {
-        await queryRunner.manager.delete(ContractsSystemsModules, {
-          contractId: id,
-          type: SystemsModulesType.MODULE,
-        });
       }
 
       if (updated)
@@ -212,7 +203,9 @@ export class ContractService {
   async createContract(data: CreateOrUpdateContractDTO): Promise<Contract> {
     const { systems, modules } = data;
 
-    const dataSource = await AppDataSource.initialize();
+    const dataSource = !AppDataSource.isInitialized
+      ? await AppDataSource.initialize()
+      : AppDataSource;
 
     const queryRunner = dataSource.createQueryRunner();
     if (!queryRunner.connection) await queryRunner.connect();

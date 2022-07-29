@@ -46,4 +46,13 @@ export class CustomerResponseDTO {
 
   @IsString()
   cityName: string;
+
+  @IsString()
+  customerSince?: string;
+
+  @IsString()
+  aditionalInfo?: string;
+
+  @IsString()
+  phoneNumber?: string;
 }

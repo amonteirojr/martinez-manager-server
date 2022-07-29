@@ -28,6 +28,12 @@ import { CreateTableModules1658278152104 } from '../../migrations/1658278152104-
 import { SystemModule } from '../modules/system-module/entities/system-module.entity';
 import { ContractsSystemsModules } from '../modules/contracts-systems-modules/entities/contracts-systems-modules.entity';
 import { PopulateRolesTable1658979591363 } from '../../migrations/1658979591363-PopulateRolesTable';
+import { Admentment } from '../modules/admentment/entities/admentment.entity';
+import { AdmentmentType } from '../modules/admentment-type/entities/admentment-type.entity';
+import { CreateAmendmentTable1659043863056 } from '../../migrations/1659043863056-CreateAmendmentTable';
+import { CreateAdmentmentsSystemsTable1659046086941 } from '../../migrations/1659046086941-CreateAdmentmentsSystemsTable';
+import { CreateAdmentmentsTypeTable1659046234298 } from '../../migrations/1659046234298-CreateAdmentmentsTypeTable';
+import { AddAdmentmentsTypeForeignKey1659046324211 } from '../../migrations/1659046324211-AddAdmentmentsTypeForeignKey';
 
 const config = new ConfigService();
 
@@ -49,6 +55,8 @@ const AppDataSource = new DataSource({
     File,
     SystemModule,
     ContractsSystemsModules,
+    Admentment,
+    AdmentmentType,
   ],
   synchronize: false,
   migrationsRun: true,
@@ -68,6 +76,10 @@ const AppDataSource = new DataSource({
     AlterTableCustomersAddColumns1658195518592,
     CreateTableModules1658278152104,
     PopulateRolesTable1658979591363,
+    CreateAmendmentTable1659043863056,
+    CreateAdmentmentsSystemsTable1659046086941,
+    CreateAdmentmentsTypeTable1659046234298,
+    AddAdmentmentsTypeForeignKey1659046324211,
   ],
   logging: false,
 });

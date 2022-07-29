@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsISO8601,
+  IsNumber,
+  IsNumberString,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateCustomerDTO {
   @ApiProperty({
@@ -111,4 +118,27 @@ export class CreateCustomerDTO {
   })
   @IsString()
   zipCode: string;
+
+  @ApiProperty({
+    description: 'Data que passou a ser cliente',
+    example: '2022-12-01',
+  })
+  @IsISO8601()
+  customerSince: string;
+
+  @ApiProperty({
+    description: 'Informações adicionais',
+    type: String,
+  })
+  @IsString()
+  aditionalInfo: string;
+
+  @ApiProperty({
+    description: 'Número de telefone',
+    type: String,
+    example: '99999999999',
+  })
+  @IsString()
+  @IsNumberString()
+  phoneNumber: string;
 }

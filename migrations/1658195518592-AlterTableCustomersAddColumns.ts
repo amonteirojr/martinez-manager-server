@@ -36,6 +36,21 @@ export class AlterTableCustomersAddColumns1658195518592
         name: 'zipCode',
         type: 'varchar(9)',
       }),
+      new TableColumn({
+        name: 'customerSince',
+        type: 'date',
+        isNullable: true,
+      }),
+      new TableColumn({
+        name: 'aditionalInfo',
+        type: 'text',
+        isNullable: true,
+      }),
+      new TableColumn({
+        name: 'phoneNumber',
+        type: 'varchar(11)',
+        isNullable: true,
+      }),
     ]);
   }
 

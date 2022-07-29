@@ -7,7 +7,6 @@ import {
   UpdateDateColumn,
   BaseEntity,
   ManyToOne,
-  OneToOne,
   JoinColumn,
   OneToMany,
 } from 'typeorm';
@@ -51,6 +50,15 @@ export class Customer extends BaseEntity {
 
   @Column()
   cityId: number;
+
+  @Column()
+  customerSince: string;
+
+  @Column()
+  aditionalInfo: string;
+
+  @Column()
+  phoneNumber: string;
 
   @CreateDateColumn()
   createdAt?: Date;

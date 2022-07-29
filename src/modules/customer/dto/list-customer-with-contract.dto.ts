@@ -36,13 +36,4 @@ export class CustomerWithContractDTO {
   @IsString()
   @IsNotEmpty()
   cityName: string;
-
-  @ApiProperty({
-    description: 'Nosso número de contrato',
-    example: '00001/2022',
-    type: String,
-  })
-  @IsString()
-  @IsNotEmpty()
-  contractNumber: string;
 }

@@ -6,11 +6,11 @@ import {
   TableForeignKey,
 } from 'typeorm';
 
-export class CreateContractsSystemsTable1657162689496
+export class CreateAdmentmentsSystemsTable1659046086941
   implements MigrationInterface
 {
   table = new Table({
-    name: 'contracts_systems_modules',
+    name: 'admentments_systems_modules',
     columns: [
       {
         name: 'id',
@@ -29,13 +29,8 @@ export class CreateContractsSystemsTable1657162689496
         type: 'integer',
       },
       {
-        name: 'deploymentDate',
-        type: 'timestamp',
-        isNullable: true,
-      },
-      {
-        name: 'deploymentResponsible',
-        type: 'varchar(50)',
+        name: 'newValue',
+        type: 'decimal',
         isNullable: true,
       },
       {
@@ -44,11 +39,7 @@ export class CreateContractsSystemsTable1657162689496
         isNullable: true,
       },
       {
-        name: 'value',
-        type: 'decimal',
-      },
-      {
-        name: 'contractId',
+        name: 'admentmentId',
         type: 'integer',
       },
       {
@@ -59,7 +50,6 @@ export class CreateContractsSystemsTable1657162689496
       {
         type: 'timestamp',
         name: 'updatedAt',
-
         default: 'CURRENT_TIMESTAMP',
       },
     ],
@@ -70,10 +60,10 @@ export class CreateContractsSystemsTable1657162689496
 
     await queryRunner.createForeignKeys(this.table, [
       new TableForeignKey({
-        columnNames: ['contractId'],
-        referencedColumnNames: ['contractId'],
-        referencedTableName: 'contracts',
-        name: 'FK_CONTRACTS_SYSTEMS_MODULES_CONTRACTS',
+        columnNames: ['admentmentId'],
+        referencedColumnNames: ['admentmentId'],
+        referencedTableName: 'admentments',
+        name: 'FK_ADMENTMENTS_SYSTEMS_MODULES_ADMENTMENTS',
       }),
     ]);
   }

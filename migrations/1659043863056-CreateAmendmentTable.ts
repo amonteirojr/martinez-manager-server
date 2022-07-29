@@ -1,4 +1,3 @@
-import { SystemsModulesType } from '../src/enums/SystemsModulesType';
 import {
   MigrationInterface,
   QueryRunner,
@@ -6,36 +5,53 @@ import {
   TableForeignKey,
 } from 'typeorm';
 
-export class CreateContractsSystemsTable1657162689496
-  implements MigrationInterface
-{
+export class CreateAmendmentTable1659043863056 implements MigrationInterface {
   table = new Table({
-    name: 'contracts_systems_modules',
+    name: 'admentments',
     columns: [
       {
-        name: 'id',
+        name: 'admentmentId',
         type: 'integer',
         isPrimary: true,
         generationStrategy: 'identity',
         isGenerated: true,
       },
       {
-        name: 'type',
-        type: 'enum',
-        enum: Object.keys(SystemsModulesType),
-      },
-      {
-        name: 'systemModuleId',
+        name: 'contractId',
         type: 'integer',
       },
       {
-        name: 'deploymentDate',
-        type: 'timestamp',
+        name: 'admentmentNumber',
+        type: 'varchar(20)',
+      },
+      {
+        name: 'value',
+        type: 'decimal',
+        isNullable: true,
+        default: 0,
+      },
+      {
+        name: 'signatureDate',
+        type: 'date',
         isNullable: true,
       },
       {
-        name: 'deploymentResponsible',
-        type: 'varchar(50)',
+        name: 'initialDate',
+        type: 'date',
+        isNullable: true,
+      },
+      {
+        name: 'finalDate',
+        type: 'date',
+        isNullable: true,
+      },
+      {
+        name: 'admentmentTypeId',
+        type: 'integer',
+      },
+      {
+        name: 'responsible',
+        type: 'varchar(100)',
         isNullable: true,
       },
       {
@@ -44,22 +60,23 @@ export class CreateContractsSystemsTable1657162689496
         isNullable: true,
       },
       {
-        name: 'value',
+        name: 'readjustment',
         type: 'decimal',
+        isNullable: true,
       },
       {
-        name: 'contractId',
-        type: 'integer',
+        name: 'negotiatedReadjustment',
+        type: 'decimal',
+        isNullable: true,
       },
       {
-        type: 'timestamp',
         name: 'createdAt',
+        type: 'timestamp',
         default: 'CURRENT_TIMESTAMP',
       },
       {
-        type: 'timestamp',
         name: 'updatedAt',
-
+        type: 'timestamp',
         default: 'CURRENT_TIMESTAMP',
       },
     ],
@@ -68,14 +85,15 @@ export class CreateContractsSystemsTable1657162689496
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(this.table);
 
-    await queryRunner.createForeignKeys(this.table, [
+    await queryRunner.createForeignKey(
+      this.table,
       new TableForeignKey({
         columnNames: ['contractId'],
         referencedColumnNames: ['contractId'],
         referencedTableName: 'contracts',
-        name: 'FK_CONTRACTS_SYSTEMS_MODULES_CONTRACTS',
+        name: 'FK_ADMENTMENTS_CONTRACTS',
       }),
-    ]);
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
