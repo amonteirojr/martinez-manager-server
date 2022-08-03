@@ -6,6 +6,7 @@ import {
   OneToOne,
   JoinColumn,
   ManyToOne,
+  OneToMany,
 } from 'typeorm';
 import { AdmentmentType } from '../../admentment-type/entities/admentment-type.entity';
 import { Contract } from '../../contract/entitites/contract.entity';
@@ -54,7 +55,7 @@ export class Admentment extends BaseEntity {
   @Column()
   updatedAt?: string;
 
-  @OneToOne(() => Contract)
+  @ManyToOne(() => Contract, (contract) => contract.admentments)
   @JoinColumn({ name: 'contractId' })
   contract?: Contract;
 

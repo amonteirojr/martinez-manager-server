@@ -30,8 +30,8 @@ export class AdmentmentController {
     return res.send(admentment);
   }
 
-  @Put(':/id')
-  @HttpCode(HttpStatus.CREATED)
+  @Put('/:id')
+  @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   @ApiResponse({ type: Admentment })
   async update(

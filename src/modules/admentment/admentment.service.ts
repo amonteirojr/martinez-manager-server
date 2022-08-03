@@ -142,12 +142,12 @@ export class AdmentmentService {
         });
       }
 
+      await queryRunner.commitTransaction();
+
       if (updated)
         this.logger.log(
           `Admentment id ${id} and number ${data.admentmentNumber} was updated`,
         );
-
-      await queryRunner.commitTransaction();
 
       return { admentmentId: id };
     } catch (err) {
@@ -179,7 +179,18 @@ export class AdmentmentService {
 
   async getAll(): Promise<Admentment[]> {
     try {
-      return this.admentmentRepository.find();
+      return this.admentmentRepository.find({
+        relations: {
+          contract: {
+            customer: {
+              customerType: true,
+            },
+          },
+        },
+        order: {
+          admentmentId: 'ASC',
+        },
+      });
     } catch (err) {
       this.logger.error(`Failed to get admentments. Cause: ${err}`);
 

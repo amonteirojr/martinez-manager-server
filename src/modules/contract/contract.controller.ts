@@ -7,7 +7,6 @@ import {
   Param,
   Post,
   Put,
-  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -38,7 +37,7 @@ export class ContractController {
   @UseGuards(JwtAuthGuard)
   @ApiResponse({ type: Array<Contract> })
   async getAllContracts(@Res() res: Response) {
-    const contract = await this.contractService.getAllContracts();
+    const contract = await this.contractService.getContractsWithActualValues();
     return res.send(contract);
   }
 

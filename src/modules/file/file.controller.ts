@@ -2,10 +2,9 @@ import {
   Controller,
   Get,
   Headers,
-  HttpCode,
-  HttpStatus,
   Param,
   Post,
+  Put,
   Res,
   UploadedFiles,
   UseGuards,
@@ -43,18 +42,29 @@ export class FileController {
     return await this.fileService.createUploadedFiles(files, contractId);
   }
 
-  @Get('/contract/:contractId')
-  @HttpCode(HttpStatus.OK)
-  async getFiles(
-    @Res() res: Response,
-    @Param('contractId') contractId: number,
+  @Put('/upload')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(
+    AnyFilesInterceptor({
+      storage: diskStorage({
+        destination: './upload/files',
+        filename: (_, file, callback) => {
+          const prefix = new Date().getTime();
+          const fileName = `${prefix}${file.originalname}`;
+          callback(null, fileName);
+        },
+      }),
+    }),
+  )
+  async updateFiles(
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Headers('contractId') contractId: number,
   ) {
-    const files = await this.fileService.getFiles(contractId);
-    return res.send(files);
+    return await this.fileService.updateFiles(files, contractId);
   }
 
   @Get('/:imgpath')
-  seeUploadedFile(@Param('imgpath') image, @Res() res) {
+  seeUploadedFile(@Param('imgpath') image: string, @Res() res: Response) {
     return res.sendFile(image, { root: './upload/files' });
   }
 }

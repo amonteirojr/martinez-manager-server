@@ -10,11 +10,15 @@ import {
   JoinColumn,
   OneToMany,
   OneToOne,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { BiddingModalityEnum } from '../../../enums/BiddingModality';
 import { PaymentModesEnum } from '../../../enums/PaymentMode';
 import { Customer } from '../../customer/entities/customer.entity';
 import { Admentment } from '../../admentment/entities/admentment.entity';
+import { System } from 'src/modules/system/entities/system.entity';
+import { ContractsSystemsModules } from 'src/modules/contracts-systems-modules/entities/contracts-systems-modules.entity';
 
 @Entity({ name: 'contracts' })
 export class Contract extends BaseEntity {
@@ -86,7 +90,15 @@ export class Contract extends BaseEntity {
   @JoinColumn({ name: 'contractId' })
   files?: File[];
 
-  @OneToOne(() => Admentment)
+  @OneToMany(() => Admentment, (admentment) => admentment.contract)
   @JoinColumn({ name: 'contractId' })
-  admentment?: Admentment;
+  admentments?: Admentment[];
+
+  @ManyToMany(() => ContractsSystemsModules)
+  @JoinTable({
+    name: 'contracts_systems_modules',
+    joinColumn: { name: 'contractId' },
+    inverseJoinColumn: { name: 'id' },
+  })
+  systems: ContractsSystemsModules[];
 }

@@ -16,6 +16,10 @@ import { ContractTableResponseDTO } from './dto/contract-table-response.dto';
 import { CreateOrUpdateContractDTO } from './dto/create-or-update-contract.dto';
 import { UpdateContractResponseDTO } from './dto/update-contract-response.dto';
 import { Contract } from './entitites/contract.entity';
+import { format } from 'date-fns';
+import { Admentment } from '../admentment/entities/admentment.entity';
+import { ContractResponseDTO } from './dto/contract-response.dto';
+import { truncate } from 'fs';
 
 @Injectable()
 export class ContractService {
@@ -49,9 +53,64 @@ export class ContractService {
     }
   }
 
+  async getContractsWithActualValues(): Promise<ContractResponseDTO[]> {
+    const filterDate = format(new Date(), 'yyyy-MM-dd');
+
+    try {
+      const result = await this.contractRepository.query(`SELECT DISTINCT
+                  contracts."initialValue" +
+                  coalesce((select
+                                sum(x.value)
+                          from admentments x
+                          where
+                                x."contractId" = contracts."contractId"
+                                and x."initialDate" <= '${filterDate}'), 0)
+                  as "actualValue",
+                  coalesce((select 
+                          max(x."finalDate") 
+                        from admentments x 
+                        where 
+                          x."contractId" = contracts."contractId" 
+                          and x."initialDate" <= '${filterDate}' ), contracts."finalValidity") 
+                  as "actualValidity",
+                  "contracts"."initialValue",
+                  "contracts"."initialValidity",
+                  "contracts"."contractId",
+                  "contracts"."ourContractNumber", 
+                  "contracts"."ourContractYear",
+                  "customer"."customerName",
+                  "customerType"."name" as "customerType" 
+                FROM "contracts"
+                LEFT JOIN "admentments" "ad" ON ad."contractId" = contracts."contractId"  
+                INNER JOIN "customers" "customer" ON customer."customerId" = contracts."customerId"  
+                INNER JOIN "customer_types" "customerType" ON "customerType"."typeId" = customer."typeId" 
+                WHERE coalesce(ad."initialDate", contracts."initialValidity") <= '${filterDate}'
+                ORDER BY "contracts"."contractId"`);
+
+      return result;
+    } catch (err) {
+      this.logger.error(`Failed to get all contracts. Cause: ${err}`);
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_GET_CONTRACTS,
+        message: 'Failed to get all contracts',
+      });
+    }
+  }
+
   async getAllContracts(): Promise<Contract[]> {
     try {
-      return await this.contractRepository.find();
+      return await this.contractRepository.find({
+        relations: {
+          admentments: true,
+          customer: {
+            customerType: true,
+          },
+        },
+        order: {
+          contractId: 'ASC',
+        },
+      });
     } catch (err) {
       this.logger.error(`Failed to get all contracts. Cause: ${err}`);
 
@@ -98,14 +157,35 @@ export class ContractService {
     }
   }
 
-  async getContractById(id: number): Promise<Contract> {
+  async getContractById(id: number): Promise<any> {
     try {
-      return await this.contractRepository.findOne({
+      const contract = await this.contractRepository.findOne({
         where: { contractId: id },
         relations: {
           files: true,
+          customer: {
+            customerType: true,
+            city: true,
+          },
+          systems: true,
         },
       });
+
+      if (contract) {
+        const result = {
+          ...contract,
+          systems: contract.systems.filter(
+            (f) => f.type === SystemsModulesType.SYSTEM,
+          ),
+          modules: contract.systems.filter(
+            (f) => f.type === SystemsModulesType.MODULE,
+          ),
+        };
+
+        return result;
+      }
+
+      return;
     } catch (err) {
       this.logger.error(`Failed to get contract by id ${id}. Cause: ${err}`);
 
@@ -178,12 +258,12 @@ export class ContractService {
         );
       }
 
+      await queryRunner.commitTransaction();
+
       if (updated)
         this.logger.log(
           `Contract id ${id} and number ${data.ourContractNumber} was updated`,
         );
-
-      await queryRunner.commitTransaction();
 
       return { contractId: id };
     } catch (err) {

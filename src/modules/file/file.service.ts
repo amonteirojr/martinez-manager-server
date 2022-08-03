@@ -5,10 +5,8 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { readFileSync } from 'fs';
 import { CodeErrors } from 'src/shared/code-errors.enum';
 import { Repository } from 'typeorm';
-import { UploadFileDTO } from './dto/upload-file.dto';
 import { File } from './entitites/file.entity';
 
 @Injectable()
@@ -56,30 +54,41 @@ export class FileService {
     }
   }
 
-  async getFiles(contractId: number): Promise<any> {
+  async updateFiles(
+    files: Express.Multer.File[],
+    contractId: number,
+  ): Promise<void> {
     try {
-      const filesData = await this.fileRepository.find({
-        where: { contractId },
-      });
+      if (!files) {
+        throw new BadRequestException({
+          code: CodeErrors.FILES_IS_NULL,
+          message: 'Files is null',
+        });
+      }
 
-      const result = filesData.map((data) => {
-        const buffer = readFileSync(`./upload/files/${data.fileName}`);
-        const base64 = buffer.toString('base64');
+      const filesToSave = files.map((file) => {
         return {
-          fileName: data.fileName,
-          file: base64,
-        };
+          contractId,
+          fileName: file.filename,
+          originalName: file.originalname,
+        } as File;
       });
 
-      return result;
+      await this.fileRepository.save(filesToSave);
+      return;
     } catch (err) {
-      this.logger.error(
-        `Failed to get files for contract ${contractId}. Cause: ${err}`,
-      );
+      this.logger.error(`Failed to upload fileS. Cause: ${err}`);
+
+      if (
+        err instanceof BadRequestException ||
+        err instanceof InternalServerErrorException
+      ) {
+        throw err;
+      }
 
       throw new InternalServerErrorException({
-        code: CodeErrors.FAIL_TO_GET_CONTRACT_FILES,
-        message: `Failed to get files for contract ${contractId}`,
+        code: CodeErrors.FAIL_TO_UPLOAD_FILES,
+        message: `Failed to upload file`,
       });
     }
   }
