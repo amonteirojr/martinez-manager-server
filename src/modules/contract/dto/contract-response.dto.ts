@@ -17,10 +17,10 @@ export class ContractResponseDTO {
   contractId: number;
 
   @IsString()
-  ourContractNumber: string;
+  contractNumber: string;
 
   @IsString()
-  ourContractYear: string;
+  contractYear: string;
 
   @IsString()
   customerName: string;

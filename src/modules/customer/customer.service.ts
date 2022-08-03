@@ -105,7 +105,7 @@ export class CustomerService {
   async getAllCustomers(): Promise<CustomerResponseDTO[]> {
     try {
       const customers = await this.customerRepository.find({
-        relations: { customerType: true, city: true, contracts: true },
+        relations: { customerType: true, city: true },
         order: {
           customerId: 'ASC',
         },

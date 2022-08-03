@@ -68,7 +68,14 @@ export class SystemModuleService {
 
   async getSystemModules(): Promise<SystemModule[]> {
     try {
-      return await this.moduleRepository.find();
+      return await this.moduleRepository.find({
+        relations: {
+          system: true,
+        },
+        order: {
+          moduleId: 'ASC',
+        },
+      });
     } catch (err) {
       this.logger.error(`Failed to find system modules. Cause: ${err}`);
 

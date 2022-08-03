@@ -21,7 +21,7 @@ export class ContractTableResponseDTO {
     type: String,
   })
   @IsNumberString()
-  ourContractNumber: string;
+  contractNumber: string;
 
   @ApiProperty({
     description: 'Nome do município',

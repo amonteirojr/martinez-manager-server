@@ -56,7 +56,7 @@ export class CreateOrUpdateContractDTO {
   @IsNotEmpty()
   @IsNumberString()
   @MaxLength(6)
-  ourContractNumber: string;
+  contractNumber: string;
 
   @ApiProperty({
     description: 'Ano do nosso número de contrato',
@@ -67,31 +67,7 @@ export class CreateOrUpdateContractDTO {
   @IsNotEmpty()
   @IsNumberString()
   @MaxLength(4)
-  ourContractYear: string;
-
-  @ApiProperty({
-    description: 'Número do contrato do cliente',
-    example: '123456',
-    type: String,
-    maxLength: 6,
-    nullable: true,
-  })
-  @IsNumberString()
-  @MaxLength(6)
-  @IsOptional()
-  customerContractNumber: string;
-
-  @ApiProperty({
-    description: 'Ano do número do contrato do cliente',
-    example: '2022',
-    type: String,
-    maxLength: 4,
-    nullable: true,
-  })
-  @IsNumberString()
-  @MaxLength(4)
-  @IsOptional()
-  customerContractYear: string;
+  contractYear: string;
 
   @ApiProperty({
     description: 'Objeto do contrato',
@@ -120,6 +96,15 @@ export class CreateOrUpdateContractDTO {
   @IsString()
   @IsNotEmpty()
   biddingNumber: string;
+
+  @ApiProperty({
+    description: 'Ano da licitação',
+    example: '2022',
+    type: String,
+  })
+  @IsString()
+  @IsNotEmpty()
+  biddingYear: string;
 
   @ApiProperty({
     description: 'Data de assinatura do contrato',

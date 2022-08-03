@@ -34,6 +34,7 @@ import { CreateAmendmentTable1659043863056 } from '../../migrations/165904386305
 import { CreateAdmentmentsSystemsTable1659046086941 } from '../../migrations/1659046086941-CreateAdmentmentsSystemsTable';
 import { CreateAdmentmentsTypeTable1659046234298 } from '../../migrations/1659046234298-CreateAdmentmentsTypeTable';
 import { AddAdmentmentsTypeForeignKey1659046324211 } from '../../migrations/1659046324211-AddAdmentmentsTypeForeignKey';
+import { AlterTableContractsAddColums1659539993636 } from '../../migrations/1659539993636-AlterTableContractsAddColums';
 
 const config = new ConfigService();
 
@@ -80,6 +81,7 @@ const AppDataSource = new DataSource({
     CreateAdmentmentsSystemsTable1659046086941,
     CreateAdmentmentsTypeTable1659046234298,
     AddAdmentmentsTypeForeignKey1659046324211,
+    AlterTableContractsAddColums1659539993636,
   ],
   logging: false,
 });

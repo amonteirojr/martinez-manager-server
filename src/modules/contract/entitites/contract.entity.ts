@@ -9,7 +9,6 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
-  OneToOne,
   ManyToMany,
   JoinTable,
 } from 'typeorm';
@@ -17,8 +16,8 @@ import { BiddingModalityEnum } from '../../../enums/BiddingModality';
 import { PaymentModesEnum } from '../../../enums/PaymentMode';
 import { Customer } from '../../customer/entities/customer.entity';
 import { Admentment } from '../../admentment/entities/admentment.entity';
-import { System } from 'src/modules/system/entities/system.entity';
-import { ContractsSystemsModules } from 'src/modules/contracts-systems-modules/entities/contracts-systems-modules.entity';
+
+import { ContractsSystemsModules } from '../../contracts-systems-modules/entities/contracts-systems-modules.entity';
 
 @Entity({ name: 'contracts' })
 export class Contract extends BaseEntity {
@@ -29,16 +28,10 @@ export class Contract extends BaseEntity {
   customerId: number;
 
   @Column({ width: 6 })
-  ourContractNumber: string;
+  contractNumber: string;
 
   @Column({ width: 4 })
-  ourContractYear: string;
-
-  @Column({ width: 6 })
-  customerContractNumber?: string;
-
-  @Column({ width: 4 })
-  customerContractYear?: string;
+  contractYear: string;
 
   @Column()
   subject?: string;
@@ -66,6 +59,9 @@ export class Contract extends BaseEntity {
 
   @Column()
   biddingNumber: string;
+
+  @Column()
+  biddingYear: string;
 
   @Column()
   biddingModalityNumber: number;

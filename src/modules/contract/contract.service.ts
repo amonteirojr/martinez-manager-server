@@ -76,8 +76,8 @@ export class ContractService {
                   "contracts"."initialValue",
                   "contracts"."initialValidity",
                   "contracts"."contractId",
-                  "contracts"."ourContractNumber", 
-                  "contracts"."ourContractYear",
+                  "contracts"."contractNumber", 
+                  "contracts"."contractYear",
                   "customer"."customerName",
                   "customerType"."name" as "customerType" 
                 FROM "contracts"
@@ -133,7 +133,7 @@ export class ContractService {
       const response: ContractTableResponseDTO[] = contracts.map((contract) => {
         return {
           contractId: contract.contractId,
-          ourContractNumber: `${contract.ourContractNumber}/${contract.ourContractYear}`,
+          contractNumber: `${contract.contractNumber}/${contract.contractYear}`,
           validity: new Date(contract.finalValidity).toLocaleString('pt-BR', {
             day: '2-digit',
             month: '2-digit',
@@ -262,7 +262,7 @@ export class ContractService {
 
       if (updated)
         this.logger.log(
-          `Contract id ${id} and number ${data.ourContractNumber} was updated`,
+          `Contract id ${id} and number ${data.contractNumber} was updated`,
         );
 
       return { contractId: id };
@@ -327,7 +327,7 @@ export class ContractService {
     } catch (err) {
       await queryRunner.rollbackTransaction();
       this.logger.error(
-        `Failed to create contract number ${data.ourContractNumber}. Cause: ${err}`,
+        `Failed to create contract number ${data.contractNumber}. Cause: ${err}`,
       );
 
       if (
@@ -338,7 +338,7 @@ export class ContractService {
 
       throw new InternalServerErrorException({
         code: CodeErrors.FAIL_TO_GET_CONTRACTS,
-        message: `Failed to create contract ${data.ourContractNumber}`,
+        message: `Failed to create contract ${data.contractNumber}`,
       });
     } finally {
       await queryRunner.release();
