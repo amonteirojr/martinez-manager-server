@@ -8,5 +8,6 @@ import { Admentment } from './entities/admentment.entity';
   imports: [TypeOrmModule.forFeature([Admentment])],
   controllers: [AdmentmentController],
   providers: [AdmentmentService],
+  exports: [AdmentmentService],
 })
 export class AdmentmentModule {}

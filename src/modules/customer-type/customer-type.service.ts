@@ -53,7 +53,10 @@ export class CustomerTypeService {
         createTypeDTO,
       );
 
-      console.log(updated);
+      if (updated.affected > 0) {
+        this.logger.log(`customer id ${id} was updated`);
+      }
+
       return;
     } catch (err) {
       this.logger.error(`Failed to create customer type. Cause: ${err}`);

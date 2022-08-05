@@ -20,6 +20,7 @@ import { format } from 'date-fns';
 import { Admentment } from '../admentment/entities/admentment.entity';
 import { ContractResponseDTO } from './dto/contract-response.dto';
 import { truncate } from 'fs';
+import { AdmentmentService } from '../admentment/admentment.service';
 
 @Injectable()
 export class ContractService {
@@ -28,7 +29,7 @@ export class ContractService {
   constructor(
     @InjectRepository(Contract)
     private readonly contractRepository: Repository<Contract>,
-    private readonly systemService: SystemService,
+    private readonly admentmentService: AdmentmentService,
   ) {}
 
   async getContractSummary(): Promise<ContractInfoCountResponseDTO> {
@@ -53,7 +54,67 @@ export class ContractService {
     }
   }
 
+  async getContractAdmentments(contractId: number): Promise<Admentment[]> {
+    try {
+      return await this.admentmentService.getContractAdmentments(contractId);
+    } catch (err) {
+      this.logger.error(`Failed to get contract admentments. Cause: ${err}`);
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_GET_CONTRACT_ADMENTMENTS,
+        message: 'Failed to get contract admentments',
+      });
+    }
+  }
+
   async getContractsWithActualValues(): Promise<ContractResponseDTO[]> {
+    const filterDate = format(new Date(), 'yyyy-MM-dd');
+
+    try {
+      const result = await this.contractRepository.query(`SELECT DISTINCT
+                  contracts."initialValue" +
+                  coalesce((select
+                                sum(x.value)
+                          from admentments x
+                          where
+                                x."contractId" = contracts."contractId"
+                                and x."initialDate" <= '${filterDate}' 
+                                and x."deletedAt" is null), 0)
+                  as "actualValue",
+                  coalesce((select 
+                          max(x."finalDate") 
+                        from admentments x 
+                        where 
+                          x."contractId" = contracts."contractId" 
+                          and x."initialDate" <= '${filterDate}' 
+                          and x."deletedAt" is null), contracts."finalValidity") 
+                  as "actualValidity",
+                  "contracts"."initialValue",
+                  "contracts"."initialValidity",
+                  "contracts"."contractId",
+                  "contracts"."contractNumber", 
+                  "contracts"."contractYear",
+                  "customer"."customerName",
+                  "customerType"."name" as "customerType" 
+                FROM "contracts"
+                LEFT JOIN "admentments" "ad" ON ad."contractId" = contracts."contractId"  
+                INNER JOIN "customers" "customer" ON customer."customerId" = contracts."customerId"  
+                INNER JOIN "customer_types" "customerType" ON "customerType"."typeId" = customer."typeId" 
+                WHERE coalesce(ad."initialDate", contracts."initialValidity") <= '${filterDate}'
+                ORDER BY "contracts"."contractId"`);
+
+      return result;
+    } catch (err) {
+      this.logger.error(`Failed to get all contracts. Cause: ${err}`);
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_GET_CONTRACTS,
+        message: 'Failed to get all contracts',
+      });
+    }
+  }
+
+  async getContractDetailsById(id: number): Promise<ContractResponseDTO[]> {
     const filterDate = format(new Date(), 'yyyy-MM-dd');
 
     try {

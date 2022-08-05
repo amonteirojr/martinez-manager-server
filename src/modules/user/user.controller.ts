@@ -51,4 +51,13 @@ export class UserController {
     const user = await this.userService.getUserById(userId);
     return res.send(user);
   }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ type: Array<User> })
+  async getAllUsers(@Res() res: Response) {
+    const users = await this.userService.getAllUsers();
+    return res.send(users);
+  }
 }

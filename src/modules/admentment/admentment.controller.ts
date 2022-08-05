@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -60,5 +61,14 @@ export class AdmentmentController {
   async getById(@Res() res: Response, @Param('id') id: number) {
     const admentments = await this.admentmentService.getById(id);
     return res.send(admentments);
+  }
+
+  @Delete('/:id')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiResponse({ type: Array<Admentment> })
+  async deleteById(@Res() res: Response, @Param('id') id: number) {
+    await this.admentmentService.deleteById(id);
+    return res.send();
   }
 }

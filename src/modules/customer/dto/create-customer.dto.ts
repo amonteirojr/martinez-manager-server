@@ -124,12 +124,14 @@ export class CreateCustomerDTO {
     example: '2022-12-01',
   })
   @IsISO8601()
+  @IsOptional()
   customerSince: string;
 
   @ApiProperty({
     description: 'Informações adicionais',
     type: String,
   })
+  @IsOptional()
   @IsString()
   aditionalInfo: string;
 
@@ -138,7 +140,7 @@ export class CreateCustomerDTO {
     type: String,
     example: '99999999999',
   })
+  @IsOptional()
   @IsString()
-  @IsNumberString()
-  phoneNumber: string;
+  phoneNumber?: string;
 }

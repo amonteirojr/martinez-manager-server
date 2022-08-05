@@ -166,13 +166,43 @@ export class AdmentmentService {
 
   async getById(id: number): Promise<Admentment> {
     try {
-      return this.admentmentRepository.findOne({ where: { admentmentId: id } });
+      return await this.admentmentRepository.findOne({
+        where: { admentmentId: id },
+      });
     } catch (err) {
       this.logger.error(`Failed to get admentment by id ${id}. Cause: ${err}`);
 
       throw new InternalServerErrorException({
         code: CodeErrors.FAIL_TO_GET_ADMENTMENT,
         message: 'Failed to get admentment by id',
+      });
+    }
+  }
+
+  async deleteById(id: number): Promise<void> {
+    try {
+      await this.admentmentRepository.softDelete({ admentmentId: id });
+    } catch (err) {
+      this.logger.error(`Failed to get admentment by id ${id}. Cause: ${err}`);
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_GET_ADMENTMENT,
+        message: 'Failed to get admentment by id',
+      });
+    }
+  }
+
+  async getContractAdmentments(contractId: number): Promise<Admentment[]> {
+    try {
+      return this.admentmentRepository.find({ where: { contractId } });
+    } catch (err) {
+      this.logger.error(
+        `Failed to get admentments for contractId ${contractId}. Cause: ${err}`,
+      );
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_GET_CONTRACT_ADMENTMENTS,
+        message: `Failed to get admentments for contractId ${contractId}`,
       });
     }
   }

@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
 import { Response } from 'express';
+import { Admentment } from '../admentment/entities/admentment.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ContractService } from './contract.service';
 import { ContractInfoCountResponseDTO } from './dto/contract-info-count-response.dto';
@@ -60,6 +61,21 @@ export class ContractController {
     return res.send(contract);
   }
 
+  @Get('/details/:id')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ type: Contract })
+  async getContractDetailsById(
+    @Res() res: Response,
+    @Param('id') contractId: number,
+  ) {
+    const contract = await this.contractService.getContractDetailsById(
+      contractId,
+    );
+
+    return res.send(contract);
+  }
+
   @Put('/:id')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
@@ -87,5 +103,13 @@ export class ContractController {
       updateContractDTO,
     );
     return res.send(contract);
+  }
+
+  @Get('/:id/admentments')
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ type: Array<Admentment> })
+  async getContractAdmentments(@Res() res: Response, @Param('id') id: number) {
+    const admentments = await this.contractService.getContractAdmentments(id);
+    return res.send(admentments);
   }
 }

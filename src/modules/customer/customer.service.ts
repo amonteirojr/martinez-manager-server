@@ -41,6 +41,9 @@ export class CustomerService {
         referenceContactName: data.referenceContactName,
         referenceContactPhone: data.referenceContactPhone,
         zipCode: data.zipCode,
+        customerSince: data.customerSince,
+        aditionalInfo: data.aditionalInfo,
+        phoneNumber: data.phoneNumber,
       };
 
       return await this.customerRepository.create(newCustomer).save();
@@ -84,6 +87,9 @@ export class CustomerService {
         referenceContactName: data.referenceContactName,
         referenceContactPhone: data.referenceContactPhone,
         zipCode: data.zipCode,
+        phoneNumber: data.phoneNumber,
+        customerSince: data.customerSince,
+        aditionalInfo: data.aditionalInfo,
       };
 
       await this.customerRepository.update({ customerId }, updateCustomer);
@@ -131,6 +137,9 @@ export class CustomerService {
             typeName: customer.customerType.name,
             customerType: customer.customerType,
             city: customer.city,
+            aditionalInfo: customer.aditionalInfo,
+            customerSince: customer.customerSince,
+            phoneNumber: customer.phoneNumber,
           } as CustomerResponseDTO),
       );
 

@@ -10,7 +10,7 @@ import { User } from './entities/user.entity';
 
 import * as bcrypt from 'bcrypt';
 import { CodeErrors } from 'src/shared/code-errors.enum';
-import { Repository } from 'typeorm';
+import { Repository, TreeParent } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoleService } from '../role/role.service';
 import { ResetPasswordDTO } from './dto/reset-password.dto';
@@ -173,6 +173,33 @@ export class UserService {
       throw new InternalServerErrorException({
         code: CodeErrors.FAIL_TO_FIND_USER,
         message: 'Failed to find user by ID',
+      });
+    }
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    try {
+      const users = await this.userRepository.find({
+        relations: ['role'],
+        select: {
+          userId: true,
+          active: true,
+          email: true,
+          firstname: true,
+          lastname: true,
+          role: {
+            name: true,
+          },
+        },
+      });
+
+      return users;
+    } catch (err) {
+      this.logger.error(`Failed to find users. Cause: ${err}`);
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_FIND_USERS,
+        message: 'Failed to find users',
       });
     }
   }

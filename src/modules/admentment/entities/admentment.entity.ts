@@ -7,6 +7,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
 import { AdmentmentType } from '../../admentment-type/entities/admentment-type.entity';
 import { Contract } from '../../contract/entitites/contract.entity';
@@ -54,6 +55,9 @@ export class Admentment extends BaseEntity {
 
   @Column()
   updatedAt?: string;
+
+  @DeleteDateColumn()
+  deletedAt?: string;
 
   @ManyToOne(() => Contract, (contract) => contract.admentments)
   @JoinColumn({ name: 'contractId' })
