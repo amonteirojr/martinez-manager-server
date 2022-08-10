@@ -1,5 +1,5 @@
-import { AdmentmentsSystemsModules } from 'src/modules/admentments-systems-modules/entities/admentments-systems-modules.entity';
-import { File } from 'src/modules/file/entitites/file.entity';
+import { AdmentmentsSystemsModules } from '../../admentments-systems-modules/entities/admentments-systems-modules.entity';
+import { File } from '../../file/entitites/file.entity';
 import {
   Entity,
   Column,

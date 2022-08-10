@@ -1,4 +1,4 @@
-import { Contract } from '../../../modules/contract/entitites/contract.entity';
+import { Contract } from '../../contract/entitites/contract.entity';
 import {
   Entity,
   Column,
@@ -9,7 +9,7 @@ import {
   JoinColumn,
   ManyToOne,
 } from 'typeorm';
-import { Admentment } from 'src/modules/admentment/entities/admentment.entity';
+import { Admentment } from '../../admentment/entities/admentment.entity';
 
 @Entity({ name: 'files' })
 export class File extends BaseEntity {
