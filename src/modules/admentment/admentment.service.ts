@@ -164,11 +164,33 @@ export class AdmentmentService {
     }
   }
 
-  async getById(id: number): Promise<Admentment> {
+  async getById(id: number): Promise<any> {
     try {
-      return await this.admentmentRepository.findOne({
+      const admentment = await this.admentmentRepository.findOne({
         where: { admentmentId: id },
+        relations: {
+          files: true,
+          systems: true,
+        },
       });
+
+      if (admentment) {
+        const result = {
+          ...admentment,
+          systems: admentment.systems.filter(
+            (f) => f.type === SystemsModulesType.SYSTEM,
+          ),
+          modules: admentment.systems.filter(
+            (f) => f.type === SystemsModulesType.MODULE,
+          ),
+        };
+
+        console.log(result);
+
+        return result;
+      }
+
+      return;
     } catch (err) {
       this.logger.error(`Failed to get admentment by id ${id}. Cause: ${err}`);
 

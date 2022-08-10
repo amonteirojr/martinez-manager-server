@@ -38,8 +38,13 @@ export class FileController {
   async uploadFile(
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Headers('contractId') contractId: number,
+    @Headers('admentmentId') admentmentId: number,
   ) {
-    return await this.fileService.createUploadedFiles(files, contractId);
+    return await this.fileService.createUploadedFiles(
+      files,
+      contractId,
+      admentmentId,
+    );
   }
 
   @Put('/upload')
@@ -59,8 +64,9 @@ export class FileController {
   async updateFiles(
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Headers('contractId') contractId: number,
+    @Headers('admentmentId') admentmentId: number,
   ) {
-    return await this.fileService.updateFiles(files, contractId);
+    return await this.fileService.updateFiles(files, contractId, admentmentId);
   }
 
   @Get('/:imgpath')

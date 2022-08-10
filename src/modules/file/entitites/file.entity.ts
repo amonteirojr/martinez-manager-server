@@ -9,6 +9,7 @@ import {
   JoinColumn,
   ManyToOne,
 } from 'typeorm';
+import { Admentment } from 'src/modules/admentment/entities/admentment.entity';
 
 @Entity({ name: 'files' })
 export class File extends BaseEntity {
@@ -16,7 +17,10 @@ export class File extends BaseEntity {
   fileId?: number;
 
   @Column()
-  contractId: number;
+  contractId?: number;
+
+  @Column()
+  admentmentId?: number;
 
   @Column()
   fileName: string;
@@ -33,4 +37,8 @@ export class File extends BaseEntity {
   @ManyToOne(() => Contract, (contract) => contract.files)
   @JoinColumn({ name: 'contractId' })
   contract?: Contract;
+
+  @ManyToOne(() => Admentment, (admentment) => admentment.files)
+  @JoinColumn({ name: 'admentmentId' })
+  admentment?: Admentment;
 }

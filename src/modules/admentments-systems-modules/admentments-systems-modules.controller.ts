@@ -3,5 +3,7 @@ import { AdmentmentsSystemsModulesService } from './admentments-systems-modules.
 
 @Controller('admentments-systems-modules')
 export class AdmentmentsSystemsModulesController {
-  constructor(private readonly admentmentsSystemsModulesService: AdmentmentsSystemsModulesService) {}
+  constructor(
+    private readonly admentmentsSystemsModulesService: AdmentmentsSystemsModulesService,
+  ) {}
 }

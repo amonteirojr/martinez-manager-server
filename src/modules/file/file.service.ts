@@ -21,6 +21,7 @@ export class FileService {
   async createUploadedFiles(
     files: Express.Multer.File[],
     contractId: number,
+    admentmentId: number,
   ): Promise<void> {
     try {
       if (!files) {
@@ -33,6 +34,7 @@ export class FileService {
       const filesToSave = files.map((file) => {
         return {
           contractId,
+          admentmentId,
           fileName: file.filename,
           originalName: file.originalname,
         } as File;
@@ -57,6 +59,7 @@ export class FileService {
   async updateFiles(
     files: Express.Multer.File[],
     contractId: number,
+    admentmentId: number,
   ): Promise<void> {
     try {
       if (!files) {
@@ -69,6 +72,7 @@ export class FileService {
       const filesToSave = files.map((file) => {
         return {
           contractId,
+          admentmentId,
           fileName: file.filename,
           originalName: file.originalname,
         } as File;

@@ -36,6 +36,8 @@ import { CreateAdmentmentsTypeTable1659046234298 } from '../../migrations/165904
 import { AddAdmentmentsTypeForeignKey1659046324211 } from '../../migrations/1659046324211-AddAdmentmentsTypeForeignKey';
 import { AlterTableContractsAddColums1659539993636 } from '../../migrations/1659539993636-AlterTableContractsAddColums';
 import { AlterTableAdmentmentsAddDeleteColumn1659668656838 } from '../../migrations/1659668656838-AlterTableAdmentmentsAddDeleteColumn';
+import { AdmentmentsSystemsModules } from '../modules/admentments-systems-modules/entities/admentments-systems-modules.entity';
+import { AlterTableFilesAddColumns1659672244685 } from '../../migrations/1659672244685-AlterTableFilesAddColumns';
 
 const config = new ConfigService();
 
@@ -59,6 +61,7 @@ const AppDataSource = new DataSource({
     ContractsSystemsModules,
     Admentment,
     AdmentmentType,
+    AdmentmentsSystemsModules,
   ],
   synchronize: false,
   migrationsRun: true,
@@ -84,6 +87,7 @@ const AppDataSource = new DataSource({
     AddAdmentmentsTypeForeignKey1659046324211,
     AlterTableContractsAddColums1659539993636,
     AlterTableAdmentmentsAddDeleteColumn1659668656838,
+    AlterTableFilesAddColumns1659672244685,
   ],
   logging: false,
 });

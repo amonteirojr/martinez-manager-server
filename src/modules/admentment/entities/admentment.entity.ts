@@ -1,13 +1,16 @@
+import { AdmentmentsSystemsModules } from 'src/modules/admentments-systems-modules/entities/admentments-systems-modules.entity';
+import { File } from 'src/modules/file/entitites/file.entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   BaseEntity,
-  OneToOne,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   DeleteDateColumn,
+  OneToMany,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { AdmentmentType } from '../../admentment-type/entities/admentment-type.entity';
 import { Contract } from '../../contract/entitites/contract.entity';
@@ -69,4 +72,16 @@ export class Admentment extends BaseEntity {
   )
   @JoinColumn({ name: 'admentmentTypeId' })
   admentmentType?: AdmentmentType;
+
+  @OneToMany(() => File, (file) => file.admentment)
+  @JoinColumn({ name: 'admentmentId' })
+  files?: File[];
+
+  @ManyToMany(() => AdmentmentsSystemsModules)
+  @JoinTable({
+    name: 'admentments_systems_modules',
+    joinColumn: { name: 'admentmentId' },
+    inverseJoinColumn: { name: 'id' },
+  })
+  systems: AdmentmentsSystemsModules[];
 }
