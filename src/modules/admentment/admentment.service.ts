@@ -185,8 +185,6 @@ export class AdmentmentService {
           ),
         };
 
-        console.log(result);
-
         return result;
       }
 
