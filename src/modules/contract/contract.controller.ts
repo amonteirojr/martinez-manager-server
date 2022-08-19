@@ -5,8 +5,8 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
-  Put,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -76,7 +76,7 @@ export class ContractController {
     return res.send(contract);
   }
 
-  @Put('/:id')
+  @Patch('/:id')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   async updateContractById(

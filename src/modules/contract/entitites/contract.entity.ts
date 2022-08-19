@@ -13,11 +13,11 @@ import {
   JoinTable,
 } from 'typeorm';
 import { BiddingModalityEnum } from '../../../enums/BiddingModality';
-import { PaymentModesEnum } from '../../../enums/PaymentMode';
 import { Customer } from '../../customer/entities/customer.entity';
 import { Admentment } from '../../admentment/entities/admentment.entity';
-
 import { ContractsSystemsModules } from '../../contracts-systems-modules/entities/contracts-systems-modules.entity';
+import { PaymentMode } from '../../payment-mode/entities/payment-mode.entity';
+import { BiddingModality } from 'src/modules/bidding-modality/entities/bidding-modality.entity';
 
 @Entity({ name: 'contracts' })
 export class Contract extends BaseEntity {
@@ -54,8 +54,8 @@ export class Contract extends BaseEntity {
   @Column()
   customerResponsible: string;
 
-  @Column({ type: 'enum', enum: Object.keys(BiddingModalityEnum) })
-  biddingModality: BiddingModalityEnum;
+  @Column()
+  biddingModalityId: number;
 
   @Column()
   biddingNumber: string;
@@ -69,8 +69,8 @@ export class Contract extends BaseEntity {
   @Column()
   readjustmentIndex?: string;
 
-  @Column({ type: 'enum', enum: Object.keys(PaymentModesEnum) })
-  paymentMode: PaymentModesEnum;
+  @Column()
+  paymentModeId?: number;
 
   @CreateDateColumn()
   createdAt?: Date;
@@ -81,6 +81,17 @@ export class Contract extends BaseEntity {
   @ManyToOne(() => Customer, (customer) => customer.contracts)
   @JoinColumn({ name: 'customerId' })
   customer: Customer;
+
+  @ManyToOne(() => PaymentMode, (paymentMode) => paymentMode.contracts)
+  @JoinColumn({ name: 'paymentModeId' })
+  paymentMode?: PaymentMode;
+
+  @ManyToOne(
+    () => BiddingModality,
+    (biddingModality) => biddingModality.contracts,
+  )
+  @JoinColumn({ name: 'biddingModalityId' })
+  biddingModality?: BiddingModality;
 
   @OneToMany(() => File, (file) => file.contract)
   @JoinColumn({ name: 'contractId' })
@@ -96,5 +107,5 @@ export class Contract extends BaseEntity {
     joinColumn: { name: 'contractId' },
     inverseJoinColumn: { name: 'id' },
   })
-  systems: ContractsSystemsModules[];
+  systems?: ContractsSystemsModules[];
 }

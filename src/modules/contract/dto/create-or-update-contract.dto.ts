@@ -10,8 +10,6 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
-import { BiddingModalityEnum } from 'src/enums/BiddingModality';
-import { PaymentModesEnum } from 'src/enums/PaymentMode';
 import { SystemsModulesType } from '../../../enums/SystemsModulesType';
 
 export class SystemsModulesDTO {
@@ -150,12 +148,11 @@ export class CreateOrUpdateContractDTO {
   customerResponsible: string;
 
   @ApiProperty({
-    description: 'Modalidade do proc. licitatório',
-    example: 'SOLICITATION_OF_PRICE',
-    enum: BiddingModalityEnum,
+    description: 'ID do Tipo de licitação',
+    type: Number,
   })
-  @IsString()
-  biddingModality: BiddingModalityEnum;
+  @IsNumber()
+  biddingModalityId: number;
 
   @ApiProperty({
     description: 'Número da modalidade',
@@ -176,12 +173,12 @@ export class CreateOrUpdateContractDTO {
   readjustmentIndex: string;
 
   @ApiProperty({
-    description: 'Modo de pagamento',
-    example: 'PIX',
-    enum: PaymentModesEnum,
+    description: 'ID do Modo de pagamento',
+    type: Number,
   })
-  @IsString()
-  paymentMode: PaymentModesEnum;
+  @IsOptional()
+  @IsNumber()
+  paymentModeId?: number;
 
   @IsArray()
   systems?: SystemsModulesDTO[];

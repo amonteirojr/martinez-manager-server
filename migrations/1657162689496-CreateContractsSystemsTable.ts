@@ -59,7 +59,6 @@ export class CreateContractsSystemsTable1657162689496
       {
         type: 'timestamp',
         name: 'updatedAt',
-
         default: 'CURRENT_TIMESTAMP',
       },
     ],

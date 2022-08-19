@@ -10,7 +10,6 @@ import { SystemsModulesType } from '../../enums/SystemsModulesType';
 import { CodeErrors } from 'src/shared/code-errors.enum';
 import { Repository } from 'typeorm';
 import { ContractsSystemsModules } from '../contracts-systems-modules/entities/contracts-systems-modules.entity';
-import { SystemService } from '../system/system.service';
 import { ContractInfoCountResponseDTO } from './dto/contract-info-count-response.dto';
 import { ContractTableResponseDTO } from './dto/contract-table-response.dto';
 import { CreateOrUpdateContractDTO } from './dto/create-or-update-contract.dto';
@@ -19,7 +18,6 @@ import { Contract } from './entitites/contract.entity';
 import { format } from 'date-fns';
 import { Admentment } from '../admentment/entities/admentment.entity';
 import { ContractResponseDTO } from './dto/contract-response.dto';
-import { truncate } from 'fs';
 import { AdmentmentService } from '../admentment/admentment.service';
 
 @Injectable()
@@ -34,7 +32,7 @@ export class ContractService {
 
   async getContractSummary(): Promise<ContractInfoCountResponseDTO> {
     try {
-      const [list, count] = await this.contractRepository.findAndCount();
+      const [_, count] = await this.contractRepository.findAndCount();
 
       const response: ContractInfoCountResponseDTO = {
         contractsCount: count,
@@ -100,7 +98,6 @@ export class ContractService {
                 LEFT JOIN "admentments" "ad" ON ad."contractId" = contracts."contractId"  
                 INNER JOIN "customers" "customer" ON customer."customerId" = contracts."customerId"  
                 INNER JOIN "customer_types" "customerType" ON "customerType"."typeId" = customer."typeId" 
-                WHERE coalesce(ad."initialDate", contracts."initialValidity") <= '${filterDate}'
                 ORDER BY "contracts"."contractId"`);
 
       return result;
@@ -146,6 +143,7 @@ export class ContractService {
                 INNER JOIN "customers" "customer" ON customer."customerId" = contracts."customerId"  
                 INNER JOIN "customer_types" "customerType" ON "customerType"."typeId" = customer."typeId" 
                 WHERE coalesce(ad."initialDate", contracts."initialValidity") <= '${filterDate}'
+                AND "contracts"."contractId" = ${id}
                 ORDER BY "contracts"."contractId"`);
 
       return result;
@@ -167,6 +165,7 @@ export class ContractService {
           customer: {
             customerType: true,
           },
+          paymentMode: true,
         },
         order: {
           contractId: 'ASC',
@@ -229,6 +228,8 @@ export class ContractService {
             city: true,
           },
           systems: true,
+          paymentMode: true,
+          biddingModality: true,
         },
       });
 
@@ -287,17 +288,17 @@ export class ContractService {
       });
 
       if (systems && systems.length > 0) {
-        Promise.all(
-          systems.map(async (system) => {
-            const newSystem = {
+        const newSystems = systems.map(
+          (system) =>
+            ({
               ...system,
+              deploymentDate: system.deploymentDate || null,
               type: SystemsModulesType.SYSTEM,
               contractId: id,
-            } as ContractsSystemsModules;
-
-            await queryRunner.manager.save(ContractsSystemsModules, newSystem);
-          }),
+            } as ContractsSystemsModules),
         );
+
+        await queryRunner.manager.save(ContractsSystemsModules, newSystems);
       }
 
       await queryRunner.manager.delete(ContractsSystemsModules, {
@@ -306,17 +307,17 @@ export class ContractService {
       });
 
       if (modules && modules.length > 0) {
-        Promise.all(
-          modules.map(async (mod) => {
-            const newModule = {
+        const newModules = modules.map(
+          (mod) =>
+            ({
               ...mod,
+              deploymentDate: mod.deploymentDate || null,
               type: SystemsModulesType.MODULE,
               contractId: id,
-            } as ContractsSystemsModules;
-
-            await queryRunner.manager.save(ContractsSystemsModules, newModule);
-          }),
+            } as ContractsSystemsModules),
         );
+
+        await queryRunner.manager.save(ContractsSystemsModules, newModules);
       }
 
       await queryRunner.commitTransaction();
@@ -360,6 +361,7 @@ export class ContractService {
           (system) =>
             ({
               ...system,
+              deploymentDate: system.deploymentDate || null,
               type: SystemsModulesType.SYSTEM,
               contractId: contract.contractId,
             } as ContractsSystemsModules),
@@ -373,14 +375,13 @@ export class ContractService {
           (mod) =>
             ({
               ...mod,
+              deploymentDate: mod.deploymentDate || null,
               type: SystemsModulesType.MODULE,
               contractId: contract.contractId,
             } as ContractsSystemsModules),
         );
 
-        await queryRunner.manager.save(ContractsSystemsModules, {
-          data: newModules,
-        });
+        await queryRunner.manager.save(ContractsSystemsModules, newModules);
       }
 
       await queryRunner.commitTransaction();
@@ -398,7 +399,7 @@ export class ContractService {
         throw err;
 
       throw new InternalServerErrorException({
-        code: CodeErrors.FAIL_TO_GET_CONTRACTS,
+        code: CodeErrors.FAIL_TO_CREATE_CONTRACT,
         message: `Failed to create contract ${data.contractNumber}`,
       });
     } finally {

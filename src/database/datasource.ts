@@ -38,6 +38,13 @@ import { AlterTableContractsAddColums1659539993636 } from '../../migrations/1659
 import { AlterTableAdmentmentsAddDeleteColumn1659668656838 } from '../../migrations/1659668656838-AlterTableAdmentmentsAddDeleteColumn';
 import { AdmentmentsSystemsModules } from '../modules/admentments-systems-modules/entities/admentments-systems-modules.entity';
 import { AlterTableFilesAddColumns1659672244685 } from '../../migrations/1659672244685-AlterTableFilesAddColumns';
+import { CreatePaymentModesTable1660876780242 } from '../../migrations/1660876780242-CreatePaymentModesTable';
+import { AlterTableContractAlterColumnPaymentMode1660876942428 } from '../../migrations/1660876942428-AlterTableContractAlterColumnPaymentMode';
+import { PaymentMode } from '../modules/payment-mode/entities/payment-mode.entity';
+import { AlterTableSystemModulesAlterRequiredColumns1660883251838 } from '../../migrations/1660883251838-AlterTableSystemModulesAlterRequiredColumns';
+import { BiddingModality } from '../modules/bidding-modality/entities/bidding-modality.entity';
+import { CreateTableBiddingModalities1660885016467 } from '../../migrations/1660885016467-CreateTableBiddingModalities';
+import { AlterTableContractAlterColumnBiddingModality1660885098408 } from '../../migrations/1660885098408-AlterTableContractAlterColumnBiddingModality';
 
 const config = new ConfigService();
 
@@ -62,6 +69,8 @@ const AppDataSource = new DataSource({
     Admentment,
     AdmentmentType,
     AdmentmentsSystemsModules,
+    PaymentMode,
+    BiddingModality,
   ],
   synchronize: false,
   migrationsRun: true,
@@ -88,6 +97,11 @@ const AppDataSource = new DataSource({
     AlterTableContractsAddColums1659539993636,
     AlterTableAdmentmentsAddDeleteColumn1659668656838,
     AlterTableFilesAddColumns1659672244685,
+    CreatePaymentModesTable1660876780242,
+    AlterTableContractAlterColumnPaymentMode1660876942428,
+    AlterTableSystemModulesAlterRequiredColumns1660883251838,
+    CreateTableBiddingModalities1660885016467,
+    AlterTableContractAlterColumnBiddingModality1660885098408,
   ],
   logging: false,
 });

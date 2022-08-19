@@ -1,3 +1,4 @@
+import { BiddingModalityController } from './modules/bidding-modality/bidding-modality.controller';
 import { Module } from '@nestjs/common';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
@@ -21,7 +22,10 @@ import { ContractsSystemsModulesModule } from './modules/contracts-systems-modul
 import { AdmentmentModule } from './modules/admentment/admentment.module';
 import { AdmentmentTypeModule } from './modules/admentment-type/admentment-type.module';
 import { AdmentmentsSystemsModulesModule } from './modules/admentments-systems-modules/admentments-systems-modules.module';
+
 import AppDataSource from './database/datasource';
+import { PaymentModeModule } from './modules/payment-mode/payment-mode.module';
+import { BiddingModalityModule } from './modules/bidding-modality/bidding-modality.module';
 
 @Module({
   imports: [
@@ -51,8 +55,9 @@ import AppDataSource from './database/datasource';
     AdmentmentModule,
     AdmentmentTypeModule,
     AdmentmentsSystemsModulesModule,
+    PaymentModeModule,
+    BiddingModalityModule,
   ],
-
-  controllers: [AppController, SystemModuleController],
+  controllers: [AppController],
 })
 export class AppModule {}
