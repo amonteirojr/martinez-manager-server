@@ -105,7 +105,7 @@ export class Contract extends BaseEntity {
   admentments?: Admentment[];
 
   @ManyToOne(() => LawArticle, (lawArticle) => lawArticle.contracts)
-  @JoinColumn({ name: 'lawId' })
+  @JoinColumn({ name: 'lawArticleId' })
   lawArticle?: LawArticle;
 
   @ManyToMany(() => ContractsSystemsModules)

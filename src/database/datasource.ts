@@ -49,6 +49,7 @@ import { Law } from '../modules/law/entities/law.entity';
 import { LawArticle } from '../modules/law-article/entities/law-article.entity';
 import { CreateLawsArticlesTable1660922054347 } from '../../migrations/1660922054347-CreateLawsArticlesTable';
 import { CreateLawsTable1660921725321 } from '../../migrations/1660921725321-CreateLawsTable';
+import { AlterTableContractAddLawId1660935291357 } from '../../migrations/1660935291357-AlterTableContractAddLawId';
 
 const config = new ConfigService();
 
@@ -110,6 +111,7 @@ const AppDataSource = new DataSource({
     AlterTableContractAlterColumnBiddingModality1660885098408,
     CreateLawsArticlesTable1660922054347,
     CreateLawsTable1660921725321,
+    AlterTableContractAddLawId1660935291357,
   ],
   logging: false,
 });
