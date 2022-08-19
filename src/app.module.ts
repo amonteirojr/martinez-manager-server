@@ -16,7 +16,6 @@ import { IbgeSidraModule } from './modules/ibge-sidra/ibge-sidra.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { FileModule } from './modules/file/file.module';
 import { NotificationModule } from './modules/notification/notification.module';
-import { SystemModuleController } from './modules/system-module/system-module.controller';
 import { SystemModuleModule } from './modules/system-module/system-module.module';
 import { ContractsSystemsModulesModule } from './modules/contracts-systems-modules/contracts-systems-modules.module';
 import { AdmentmentModule } from './modules/admentment/admentment.module';
@@ -26,6 +25,8 @@ import { AdmentmentsSystemsModulesModule } from './modules/admentments-systems-m
 import AppDataSource from './database/datasource';
 import { PaymentModeModule } from './modules/payment-mode/payment-mode.module';
 import { BiddingModalityModule } from './modules/bidding-modality/bidding-modality.module';
+import { LawModule } from './modules/law/law.module';
+import { LawArticleModule } from './modules/law-article/law-article.module';
 
 @Module({
   imports: [
@@ -57,6 +58,8 @@ import { BiddingModalityModule } from './modules/bidding-modality/bidding-modali
     AdmentmentsSystemsModulesModule,
     PaymentModeModule,
     BiddingModalityModule,
+    LawModule,
+    LawArticleModule,
   ],
   controllers: [AppController],
 })

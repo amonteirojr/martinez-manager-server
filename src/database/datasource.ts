@@ -45,6 +45,10 @@ import { AlterTableSystemModulesAlterRequiredColumns1660883251838 } from '../../
 import { BiddingModality } from '../modules/bidding-modality/entities/bidding-modality.entity';
 import { CreateTableBiddingModalities1660885016467 } from '../../migrations/1660885016467-CreateTableBiddingModalities';
 import { AlterTableContractAlterColumnBiddingModality1660885098408 } from '../../migrations/1660885098408-AlterTableContractAlterColumnBiddingModality';
+import { Law } from '../modules/law/entities/law.entity';
+import { LawArticle } from '../modules/law-article/entities/law-article.entity';
+import { CreateLawsArticlesTable1660922054347 } from '../../migrations/1660922054347-CreateLawsArticlesTable';
+import { CreateLawsTable1660921725321 } from '../../migrations/1660921725321-CreateLawsTable';
 
 const config = new ConfigService();
 
@@ -71,6 +75,8 @@ const AppDataSource = new DataSource({
     AdmentmentsSystemsModules,
     PaymentMode,
     BiddingModality,
+    Law,
+    LawArticle,
   ],
   synchronize: false,
   migrationsRun: true,
@@ -102,6 +108,8 @@ const AppDataSource = new DataSource({
     AlterTableSystemModulesAlterRequiredColumns1660883251838,
     CreateTableBiddingModalities1660885016467,
     AlterTableContractAlterColumnBiddingModality1660885098408,
+    CreateLawsArticlesTable1660922054347,
+    CreateLawsTable1660921725321,
   ],
   logging: false,
 });

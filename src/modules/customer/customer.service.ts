@@ -120,26 +120,10 @@ export class CustomerService {
       const response = customers.map(
         (customer) =>
           ({
-            customerName: customer.customerName,
-            address: customer.address,
-            cityId: customer.cityId,
-            typeId: customer.typeId,
-            document: customer.document,
-            neighborhood: customer.neighborhood,
-            number: customer.number,
-            zipCode: customer.zipCode,
-            cityPopulation: customer.city.cityPopulation,
-            complement: customer.complement,
-            referenceContactName: customer.referenceContactName,
-            cityName: customer.city.cityName,
-            customerId: customer.customerId,
-            referenceContactPhone: customer.referenceContactPhone,
+            ...customer,
             typeName: customer.customerType.name,
-            customerType: customer.customerType,
-            city: customer.city,
-            aditionalInfo: customer.aditionalInfo,
-            customerSince: customer.customerSince,
-            phoneNumber: customer.phoneNumber,
+            cityPopulation: customer.city.cityPopulation,
+            cityName: customer.city.cityName,
           } as CustomerResponseDTO),
       );
 
@@ -150,6 +134,32 @@ export class CustomerService {
       throw new InternalServerErrorException({
         code: CodeErrors.FAIL_TO_GET_CUSTOMER,
         message: `Failed to customers`,
+      });
+    }
+  }
+
+  async getCustomer(customerId: number): Promise<CustomerResponseDTO> {
+    try {
+      const customer = await this.customerRepository.findOne({
+        where: { customerId },
+        relations: {
+          city: true,
+          customerType: true,
+        },
+      });
+
+      return {
+        ...customer,
+        typeName: customer.customerType.name,
+        cityPopulation: customer.city.cityPopulation,
+        cityName: customer.city.cityName,
+      } as CustomerResponseDTO;
+    } catch (err) {
+      this.logger.error(`Failed to get customer. Cause: ${err}`);
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_GET_CUSTOMER,
+        message: `Failed to customer`,
       });
     }
   }

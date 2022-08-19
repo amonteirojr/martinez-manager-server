@@ -155,6 +155,14 @@ export class CreateOrUpdateContractDTO {
   biddingModalityId: number;
 
   @ApiProperty({
+    description: 'ID do artigo da lei',
+    type: Number,
+  })
+  @IsNumber()
+  @IsOptional()
+  lawArticleId?: number;
+
+  @ApiProperty({
     description: 'Número da modalidade',
     example: 1,
     type: Number,

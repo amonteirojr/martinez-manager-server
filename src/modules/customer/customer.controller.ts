@@ -35,7 +35,7 @@ export class CustomerController {
   }
 
   @Put('/:customerId')
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
   async updateCustomer(
     @Res() res: Response,
@@ -47,11 +47,17 @@ export class CustomerController {
   }
 
   @Get()
-  @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   async getCustomerList(@Res() res: Response) {
     const result = await this.customerService.getAllCustomers();
 
+    return res.send(result);
+  }
+
+  @Get('/:id')
+  @UseGuards(JwtAuthGuard)
+  async getCustomer(@Res() res: Response, @Param('id') customerId: number) {
+    const result = await this.customerService.getCustomer(customerId);
     return res.send(result);
   }
 }

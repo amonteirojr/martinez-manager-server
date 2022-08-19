@@ -12,12 +12,12 @@ import {
   ManyToMany,
   JoinTable,
 } from 'typeorm';
-import { BiddingModalityEnum } from '../../../enums/BiddingModality';
 import { Customer } from '../../customer/entities/customer.entity';
 import { Admentment } from '../../admentment/entities/admentment.entity';
 import { ContractsSystemsModules } from '../../contracts-systems-modules/entities/contracts-systems-modules.entity';
 import { PaymentMode } from '../../payment-mode/entities/payment-mode.entity';
 import { BiddingModality } from 'src/modules/bidding-modality/entities/bidding-modality.entity';
+import { LawArticle } from 'src/modules/law-article/entities/law-article.entity';
 
 @Entity({ name: 'contracts' })
 export class Contract extends BaseEntity {
@@ -72,6 +72,9 @@ export class Contract extends BaseEntity {
   @Column()
   paymentModeId?: number;
 
+  @Column()
+  lawArticleId?: number;
+
   @CreateDateColumn()
   createdAt?: Date;
 
@@ -100,6 +103,10 @@ export class Contract extends BaseEntity {
   @OneToMany(() => Admentment, (admentment) => admentment.contract)
   @JoinColumn({ name: 'contractId' })
   admentments?: Admentment[];
+
+  @ManyToOne(() => LawArticle, (lawArticle) => lawArticle.contracts)
+  @JoinColumn({ name: 'lawId' })
+  lawArticle?: LawArticle;
 
   @ManyToMany(() => ContractsSystemsModules)
   @JoinTable({
