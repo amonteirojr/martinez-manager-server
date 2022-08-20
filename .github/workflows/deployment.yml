@@ -12,10 +12,9 @@ jobs:
     steps:
       - name: SSH Action
         id: ssh
-        uses: nerd4ever/ssh-action@master
+        uses: garygrossgarten/github-action-ssh@release
         with:
           host: ${{ secrets.SSH_HOST }}
-          user: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          command: |
-            whoami
+          username: ${{ secrets.SSH_USER }}
+          privateKey: ${{ secrets.SSH_KEY }}
+          command: whoami
