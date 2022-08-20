@@ -50,6 +50,6 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_KEY: ${{ secrets.SSH_KEY }}
-        run: |
-          docker rm -f martinez-manager-server
-          docker run -d --name martinez-manager-server -p 3000:3000 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          script: |
+            docker rm -f martinez-manager-server
+            docker run -d --name martinez-manager-server -p 3000:3000 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
