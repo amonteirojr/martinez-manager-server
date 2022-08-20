@@ -1,6 +1,6 @@
 FROM node:lts-alpine3.16
 
-ENV NODE_ENV production
+ENV NODE_ENV development
 
 WORKDIR /usr/src/app
 
