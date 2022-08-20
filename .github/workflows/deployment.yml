@@ -10,22 +10,14 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
       - name: SSH Action
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: b8rcode
           IMAGE_TAG: martinez-manager-${{ github.sha }}
-        uses: appleboy/ssh-action@v0.1.2
+        uses: invi5H/ssh-action@v1
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          envs: |
-            ECR_REGISTRY
-            ECR_REPOSITORY
-            IMAGE_TAG
-          script: |
-            whoami
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+      - run: ssh ${{ steps.ssh.outputs.SERVER }} pwd && whoami
