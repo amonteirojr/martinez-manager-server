@@ -10,10 +10,14 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     steps:
+      - run: echo ${{ secrets.SSH_HOST }} ${{ secrets.SSH_USER }} ${{ secrets.SSH_KEY }}
+
       - name: SSH Action
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          debug: true
+          timeout: 60s
           script: whoami
