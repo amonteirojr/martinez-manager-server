@@ -12,11 +12,10 @@ jobs:
     steps:
       - name: SSH Action
         id: ssh
-        uses: invi5H/ssh-action@v1
+        uses: nerd4ever/ssh-action@master
         with:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_KEY: ${{ secrets.SSH_KEY }}
-
-      - name: Executing SSH commands
-        run: ssh ${{ steps.ssh.outputs.SERVER }} pwd && whoami
+          host: ${{ secrets.SSH_HOST }}
+          user: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          command: |
+            whoami
