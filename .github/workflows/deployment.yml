@@ -11,13 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: SSH Action
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: b8rcode
-          IMAGE_TAG: martinez-manager-${{ github.sha }}
-        uses: garygrossgarten/github-action-ssh@release
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          privateKey: ${{ secrets.SSH_KEY }}
-          command: whoami
+          key: ${{ secrets.SSH_KEY }}
+          script: whoami
