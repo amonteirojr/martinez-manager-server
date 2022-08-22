@@ -3,7 +3,7 @@ name: Homolog deploy
 on:
   push:
     branches:
-      - 'develop'
+      - 'homolog'
 
 jobs:
   deploy:
@@ -15,7 +15,5 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          password: '25851571@Ad'
-          debug: true
-          timeout: 60s
+          key: ${{ secrets.SSH_KEY }}
           script: whoami
