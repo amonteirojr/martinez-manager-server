@@ -10,8 +10,6 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     steps:
-      - run: echo ${{ secrets.SSH_HOST }} ${{ secrets.SSH_USER }} ${{ secrets.SSH_KEY }}
-
       - name: SSH Action
         uses: appleboy/ssh-action@master
         with:
