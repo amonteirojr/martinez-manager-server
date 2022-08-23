@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v2 
       - name: Deploy in EC2
         env:
-            PRIVATE_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY  }}
+            PRIVATE_KEY: ${{ secrets.SSH_KEY  }}
             HOSTNAME : ${{ secrets.SSH_HOST  }}
             USER_NAME : ${{ secrets.SSH_USER  }}
             
