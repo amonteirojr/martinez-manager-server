@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsISO8601,
   IsNumber,
-  IsNumberString,
   IsOptional,
   IsString,
   MaxLength,
@@ -123,9 +122,9 @@ export class CreateCustomerDTO {
     description: 'Data que passou a ser cliente',
     example: '2022-12-01',
   })
-  @IsISO8601()
   @IsOptional()
-  customerSince: string;
+  @IsISO8601()
+  customerSince?: string;
 
   @ApiProperty({
     description: 'Informações adicionais',

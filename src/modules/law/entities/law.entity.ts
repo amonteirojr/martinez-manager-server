@@ -1,3 +1,4 @@
+import { Contract } from 'src/modules/contract/entitites/contract.entity';
 import { LawArticle } from 'src/modules/law-article/entities/law-article.entity';
 import {
   BaseEntity,
@@ -26,6 +27,10 @@ export class Law extends BaseEntity {
 
   @UpdateDateColumn()
   updatedAt?: Date;
+
+  @OneToMany(() => Contract, (contract) => contract.law)
+  @JoinColumn({ name: 'lawId' })
+  contracts?: Contract[];
 
   @OneToMany(() => LawArticle, (lawArticle) => lawArticle.law)
   @JoinColumn({ name: 'lawId' })

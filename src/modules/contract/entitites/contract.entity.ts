@@ -18,6 +18,7 @@ import { ContractsSystemsModules } from '../../contracts-systems-modules/entitie
 import { PaymentMode } from '../../payment-mode/entities/payment-mode.entity';
 import { BiddingModality } from 'src/modules/bidding-modality/entities/bidding-modality.entity';
 import { LawArticle } from 'src/modules/law-article/entities/law-article.entity';
+import { Law } from 'src/modules/law/entities/law.entity';
 
 @Entity({ name: 'contracts' })
 export class Contract extends BaseEntity {
@@ -73,7 +74,7 @@ export class Contract extends BaseEntity {
   paymentModeId?: number;
 
   @Column()
-  lawArticleId?: number;
+  lawId?: number;
 
   @CreateDateColumn()
   createdAt?: Date;
@@ -104,9 +105,9 @@ export class Contract extends BaseEntity {
   @JoinColumn({ name: 'contractId' })
   admentments?: Admentment[];
 
-  @ManyToOne(() => LawArticle, (lawArticle) => lawArticle.contracts)
-  @JoinColumn({ name: 'lawArticleId' })
-  lawArticle?: LawArticle;
+  @ManyToOne(() => Law, (law) => law.contracts)
+  @JoinColumn({ name: 'lawId' })
+  law?: Law;
 
   @ManyToMany(() => ContractsSystemsModules)
   @JoinTable({

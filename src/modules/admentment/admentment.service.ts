@@ -137,9 +137,7 @@ export class AdmentmentService {
             } as AdmentmentsSystemsModulesDTO),
         );
 
-        await queryRunner.manager.save(AdmentmentsSystemsModules, {
-          data: newModules,
-        });
+        await queryRunner.manager.save(AdmentmentsSystemsModules, newModules);
       }
 
       await queryRunner.commitTransaction();

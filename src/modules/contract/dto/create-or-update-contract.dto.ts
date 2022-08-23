@@ -160,7 +160,7 @@ export class CreateOrUpdateContractDTO {
   })
   @IsNumber()
   @IsOptional()
-  lawArticleId?: number;
+  lawId?: number;
 
   @ApiProperty({
     description: 'Número da modalidade',

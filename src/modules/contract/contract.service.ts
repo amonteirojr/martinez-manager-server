@@ -3,6 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import AppDataSource from 'src/database/datasource';
@@ -19,6 +20,8 @@ import { format } from 'date-fns';
 import { Admentment } from '../admentment/entities/admentment.entity';
 import { ContractResponseDTO } from './dto/contract-response.dto';
 import { AdmentmentService } from '../admentment/admentment.service';
+import { ContractDetailsResponseDTO } from './dto/contract-details-response.dto';
+import { filter } from 'rxjs';
 
 @Injectable()
 export class ContractService {
@@ -111,17 +114,44 @@ export class ContractService {
     }
   }
 
-  async getContractDetailsById(id: number): Promise<ContractResponseDTO[]> {
+  async getContractDetailsById(
+    id: number,
+  ): Promise<ContractDetailsResponseDTO> {
     const filterDate = format(new Date(), 'yyyy-MM-dd');
 
     try {
-      const result = await this.contractRepository.query(`SELECT DISTINCT
+      const contract = await this.contractRepository.findOne({
+        where: { contractId: id },
+        relations: {
+          biddingModality: true,
+          customer: {
+            city: true,
+            customerType: true,
+          },
+          files: true,
+          law: true,
+          paymentMode: true,
+          systems: true,
+        },
+      });
+
+      if (!contract) {
+        this.logger.error(`Contract ID ${id} not found.`);
+        throw new NotFoundException({
+          code: CodeErrors.CONTRACT_NOT_FOUND,
+          message: 'Contract not found',
+        });
+      }
+
+      const [actualValues] = await this.contractRepository
+        .query(`SELECT DISTINCT
                   contracts."initialValue" +
                   coalesce((select
                                 sum(x.value)
                           from admentments x
                           where
                                 x."contractId" = contracts."contractId"
+                                and x."deletedAt" is null
                                 and x."initialDate" <= '${filterDate}'), 0)
                   as "actualValue",
                   coalesce((select 
@@ -129,24 +159,27 @@ export class ContractService {
                         from admentments x 
                         where 
                           x."contractId" = contracts."contractId" 
+                          and x."deletedAt" is null
                           and x."initialDate" <= '${filterDate}' ), contracts."finalValidity") 
-                  as "actualValidity",
-                  "contracts"."initialValue",
-                  "contracts"."initialValidity",
-                  "contracts"."contractId",
-                  "contracts"."contractNumber", 
-                  "contracts"."contractYear",
-                  "customer"."customerName",
-                  "customerType"."name" as "customerType" 
+                  as "actualValidity"
                 FROM "contracts"
                 LEFT JOIN "admentments" "ad" ON ad."contractId" = contracts."contractId"  
                 INNER JOIN "customers" "customer" ON customer."customerId" = contracts."customerId"  
                 INNER JOIN "customer_types" "customerType" ON "customerType"."typeId" = customer."typeId" 
                 WHERE coalesce(ad."initialDate", contracts."initialValidity") <= '${filterDate}'
-                AND "contracts"."contractId" = ${id}
-                ORDER BY "contracts"."contractId"`);
+                AND "contracts"."contractId" = ${id}`);
 
-      return result;
+      return {
+        ...contract,
+        systems: contract.systems.filter(
+          (system) => system.type === SystemsModulesType.SYSTEM,
+        ),
+        modules: contract.systems.filter(
+          (system) => system.type === SystemsModulesType.MODULE,
+        ),
+        actualValue: actualValues.actualValue || contract.initialValue,
+        finalDate: actualValues.actualValidity || contract.finalValidity,
+      } as ContractDetailsResponseDTO;
     } catch (err) {
       this.logger.error(`Failed to get all contracts. Cause: ${err}`);
 
@@ -166,6 +199,7 @@ export class ContractService {
             customerType: true,
           },
           paymentMode: true,
+          law: true,
         },
         order: {
           contractId: 'ASC',
@@ -230,6 +264,7 @@ export class ContractService {
           systems: true,
           paymentMode: true,
           biddingModality: true,
+          law: true,
         },
       });
 

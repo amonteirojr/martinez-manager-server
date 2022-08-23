@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { SystemsModulesDTO } from 'src/modules/contract/dto/create-or-update-contract.dto';
 
 export class CreateAdmentmentDTO {
@@ -71,6 +71,7 @@ export class CreateAdmentmentDTO {
     description: 'Data de assinatuyra',
     type: String,
   })
+  @IsNotEmpty()
   @IsString()
   signatureDate: string;
 

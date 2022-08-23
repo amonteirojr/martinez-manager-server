@@ -1,4 +1,3 @@
-import { Contract } from 'src/modules/contract/entitites/contract.entity';
 import { Law } from 'src/modules/law/entities/law.entity';
 import {
   BaseEntity,
@@ -7,7 +6,6 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -35,8 +33,4 @@ export class LawArticle extends BaseEntity {
   @ManyToOne(() => Law, (law) => law.articles)
   @JoinColumn({ name: 'lawId' })
   law?: Law;
-
-  @OneToMany(() => Contract, (contract) => contract.lawArticle)
-  @JoinColumn({ name: 'lawId' })
-  contracts?: Contract[];
 }

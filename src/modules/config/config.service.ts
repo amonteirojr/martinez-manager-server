@@ -37,6 +37,9 @@ export class ConfigService implements OnModuleInit {
     envConfig.typeormPassword = config.TYPEORM_PASSWORD;
     envConfig.typeormConnection = config.TYPEORM_CONNECTION;
     envConfig.typeormEntities = config.TYPEORM_ENTITIES;
+    envConfig.typeormEntitiesDir = config.TYPEORM_ENTITIES_DIR;
+    envConfig.typeormMigrations = config.TYPEORM_MIGRATIONS;
+    envConfig.typeormMigrationsDir = config.TYPEORM_MIGRATIONS_DIR;
     envConfig.apiIbgeSidra = config.API_IBGE_SIDRA;
     envConfig.apiIbgeLocalidades = config.API_IBGE_LOCALIDADES;
     envConfig.sendingblueApiUrl = config.SENDINBLUE_API_URL;

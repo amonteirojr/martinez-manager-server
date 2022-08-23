@@ -44,6 +44,15 @@ export class ConfigEnv {
   @IsString()
   typeormEntities: string;
 
+  @IsString()
+  typeormEntitiesDir: string;
+
+  @IsString()
+  typeormMigrations: string;
+
+  @IsString()
+  typeormMigrationsDir: string;
+
   @IsUrl()
   apiIbgeSidra: string;
 

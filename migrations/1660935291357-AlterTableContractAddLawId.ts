@@ -9,12 +9,12 @@ export class AlterTableContractAddLawId1660935291357
       new TableColumn({
         type: 'integer',
         isNullable: true,
-        name: 'lawArticleId',
+        name: 'lawId',
       }),
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropColumn('contracts', 'lawArticleId');
+    await queryRunner.dropColumn('contracts', 'lawId');
   }
 }

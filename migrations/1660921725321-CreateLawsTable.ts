@@ -13,7 +13,7 @@ export class CreateLawsTable1660921725321 implements MigrationInterface {
       },
       {
         name: 'lawNumber',
-        type: 'varchar(20)',
+        type: 'varchar(40)',
       },
       {
         name: 'description',

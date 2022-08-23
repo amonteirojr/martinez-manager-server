@@ -3,8 +3,10 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { unlink, unlinkSync } from 'fs';
 import { CodeErrors } from 'src/shared/code-errors.enum';
 import { Repository } from 'typeorm';
 import { File } from './entitites/file.entity';
@@ -56,43 +58,39 @@ export class FileService {
     }
   }
 
-  async updateFiles(
-    files: Express.Multer.File[],
-    contractId: number,
-    admentmentId: number,
-  ): Promise<void> {
+  async deleteFile(fileId: number): Promise<void> {
     try {
-      if (!files) {
-        throw new BadRequestException({
-          code: CodeErrors.FILES_IS_NULL,
-          message: 'Files is null',
+      const fileToDelete = await this.fileRepository.findOne({
+        where: { fileId },
+      });
+
+      if (!fileToDelete) {
+        this.logger.error('File does not exist');
+        throw new NotFoundException({
+          message: 'File does not exist.',
+          code: CodeErrors.FILE_DOES_NOT_EXIST,
         });
       }
 
-      const filesToSave = files.map((file) => {
-        return {
-          contractId,
-          admentmentId,
-          fileName: file.filename,
-          originalName: file.originalname,
-        } as File;
-      });
+      unlinkSync(`upload/files/${fileToDelete.fileName}`);
+      this.logger.log(
+        `File "${fileToDelete.fileName}" was deleted from folder`,
+      );
 
-      await this.fileRepository.save(filesToSave);
-      return;
+      await this.fileRepository.delete({ fileId });
+      this.logger.log(
+        `File "${fileToDelete.fileName}" was deleted from database`,
+      );
     } catch (err) {
-      this.logger.error(`Failed to upload fileS. Cause: ${err}`);
+      this.logger.error(`Failed to delete file. Cause: ${err}`);
 
-      if (
-        err instanceof BadRequestException ||
-        err instanceof InternalServerErrorException
-      ) {
+      if (err instanceof NotFoundException) {
         throw err;
       }
 
       throw new InternalServerErrorException({
-        code: CodeErrors.FAIL_TO_UPLOAD_FILES,
-        message: `Failed to upload file`,
+        code: CodeErrors.FAIL_TO_DELETE_FILE,
+        message: `Failed to delete file`,
       });
     }
   }

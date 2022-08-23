@@ -1,7 +1,11 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
   Headers,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -47,26 +51,11 @@ export class FileController {
     );
   }
 
-  @Put('/upload')
+  @Delete('/:fileId')
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(
-    AnyFilesInterceptor({
-      storage: diskStorage({
-        destination: './upload/files',
-        filename: (_, file, callback) => {
-          const prefix = new Date().getTime();
-          const fileName = `${prefix}${file.originalname}`;
-          callback(null, fileName);
-        },
-      }),
-    }),
-  )
-  async updateFiles(
-    @UploadedFiles() files: Array<Express.Multer.File>,
-    @Headers('contractId') contractId: number,
-    @Headers('admentmentId') admentmentId: number,
-  ) {
-    return await this.fileService.updateFiles(files, contractId, admentmentId);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteFile(@Param('fileId') fileId: number) {
+    return await this.fileService.deleteFile(fileId);
   }
 
   @Get('/:imgpath')
