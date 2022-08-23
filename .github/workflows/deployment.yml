@@ -18,6 +18,7 @@ jobs:
             USER_NAME : ${{ secrets.SSH_USER  }}
             
         run: |
-          ssh -i ${PRIVATE_KEY} ${USER_NAME}@${HOSTNAME} '
+          echo "$PRIVATE_KEY" > private_key && chmod 400 private_key
+          ssh -i private_key ${USER_NAME}@${HOSTNAME} '
             whoami
           '
