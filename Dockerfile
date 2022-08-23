@@ -1,18 +1,33 @@
-FROM node:lts-alpine3.16
-
-ENV NODE_ENV development
+FROM node:16-alpine AS builder
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm install --only=development
+
+COPY . .
+
+RUN npm run build
+
+#-------------
+
+FROM node:lts-alpine3.16
+
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+
+RUN npm install --only=production
 
 COPY . .
 
 EXPOSE 3000
 
-RUN npm run build
+COPY --from=builder /usr/src/app/dist ./dist
 
-CMD ["npm", "run", "start:prod"]
+CMD ["node", "dist/main"]
 
