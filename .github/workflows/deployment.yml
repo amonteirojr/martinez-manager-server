@@ -6,19 +6,16 @@ on:
       - 'develop'
 
 jobs:
-  Deploy:
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
-    
     steps:
-      - uses: actions/checkout@v2 
-      - name: Deploy in EC2
-        env:
-            PRIVATE_KEY: ${{ secrets.SSH_KEY  }}
-            HOSTNAME : ${{ secrets.SSH_HOST  }}
-            USER_NAME : ${{ secrets.SSH_USER  }}
-            
-        run: |
-          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          ssh -i private_key ${USER_NAME}@${HOSTNAME} '
-            whoami
-          '
+      - run: echo ${{ secrets.SSH_HOST }} ${{ secrets.SSH_USER }} ${{ secrets.SSH_KEY }}
+
+      - name: SSH Action
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: whoami
