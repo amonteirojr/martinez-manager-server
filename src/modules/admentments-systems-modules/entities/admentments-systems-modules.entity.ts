@@ -24,6 +24,12 @@ export class AdmentmentsSystemsModules extends BaseEntity {
   comments?: string;
 
   @Column()
+  installments?: number;
+
+  @Column()
+  monthValue?: number;
+
+  @Column()
   admentmentId: number;
 
   @CreateDateColumn()

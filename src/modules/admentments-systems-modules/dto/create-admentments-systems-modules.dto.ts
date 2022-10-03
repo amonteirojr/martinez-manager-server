@@ -12,7 +12,11 @@ export class AdmentmentsSystemsModulesDTO {
   systemModuleId: number;
 
   @IsNumber()
-  newValue: number;
+  monthValue: number;
+
+  @IsOptional()
+  @IsNumber()
+  installments?: number;
 
   @IsString()
   @IsOptional()

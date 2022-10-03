@@ -19,5 +19,5 @@ export class ContractDetailsResponseDTO extends CreateOrUpdateContractDTO {
   })
   @IsNotEmpty()
   @IsNumber()
-  actualValue: number;
+  actualMonthValue: number;
 }

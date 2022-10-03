@@ -29,12 +29,20 @@ export class CreateAdmentmentDTO {
   responsible?: string;
 
   @ApiProperty({
-    description: 'Valor do aditamento',
+    description: 'Quantidade de parcelas',
     type: Number,
   })
   @IsNumber()
   @IsOptional()
-  value?: number;
+  installments?: number;
+
+  @ApiProperty({
+    description: 'Valor mensal do aditamento',
+    type: Number,
+  })
+  @IsNumber()
+  @IsOptional()
+  monthValue?: number;
 
   @ApiProperty({
     description: 'Data inicial da vigência',

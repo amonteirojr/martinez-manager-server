@@ -27,7 +27,10 @@ export class Admentment extends BaseEntity {
   admentmentNumber: string;
 
   @Column()
-  value?: number;
+  monthValue?: number;
+
+  @Column()
+  installments?: number;
 
   @Column()
   signatureDate?: string;

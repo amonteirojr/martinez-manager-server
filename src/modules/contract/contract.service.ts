@@ -73,15 +73,16 @@ export class ContractService {
 
     try {
       const result = await this.contractRepository.query(`SELECT DISTINCT
-                  contracts."initialValue" +
+                  contracts."monthValue" +
                   coalesce((select
-                                sum(x.value)
+                                sum(x."monthValue")
                           from admentments x
                           where
                                 x."contractId" = contracts."contractId"
                                 and x."initialDate" <= '${filterDate}' 
                                 and x."deletedAt" is null), 0)
-                  as "actualValue",
+                  as "actualMonthValue",
+                contracts.installments as "initialInstallments",
                   coalesce((select 
                           max(x."finalDate") 
                         from admentments x 
@@ -90,7 +91,7 @@ export class ContractService {
                           and x."initialDate" <= '${filterDate}' 
                           and x."deletedAt" is null), contracts."finalValidity") 
                   as "actualValidity",
-                  "contracts"."initialValue",
+                  "contracts"."monthValue" as "initialMonthValue",
                   "contracts"."initialValidity",
                   "contracts"."contractId",
                   "contracts"."contractNumber", 
@@ -101,6 +102,7 @@ export class ContractService {
                 LEFT JOIN "admentments" "ad" ON ad."contractId" = contracts."contractId"  
                 INNER JOIN "customers" "customer" ON customer."customerId" = contracts."customerId"  
                 INNER JOIN "customer_types" "customerType" ON "customerType"."typeId" = customer."typeId" 
+                WHERE contracts."deletedAt" is null
                 ORDER BY "contracts"."contractId"`);
 
       return result;
@@ -132,6 +134,7 @@ export class ContractService {
           law: true,
           paymentMode: true,
           systems: true,
+          admentments: true,
         },
       });
 
@@ -145,15 +148,16 @@ export class ContractService {
 
       const [actualValues] = await this.contractRepository
         .query(`SELECT DISTINCT
-                  contracts."initialValue" +
+                  contracts."monthValue" +
                   coalesce((select
-                                sum(x.value)
+                                sum(x."monthValue")
                           from admentments x
                           where
                                 x."contractId" = contracts."contractId"
                                 and x."deletedAt" is null
                                 and x."initialDate" <= '${filterDate}'), 0)
-                  as "actualValue",
+                  as "actualMonthValue",
+                  contracts.installments,
                   coalesce((select 
                           max(x."finalDate") 
                         from admentments x 
@@ -167,18 +171,14 @@ export class ContractService {
                 INNER JOIN "customers" "customer" ON customer."customerId" = contracts."customerId"  
                 INNER JOIN "customer_types" "customerType" ON "customerType"."typeId" = customer."typeId" 
                 WHERE coalesce(ad."initialDate", contracts."initialValidity") <= '${filterDate}'
+                AND contracts."deletedAt" is null
                 AND "contracts"."contractId" = ${id}`);
 
       return {
         ...contract,
-        systems: contract.systems.filter(
-          (system) => system.type === SystemsModulesType.SYSTEM,
-        ),
-        modules: contract.systems.filter(
-          (system) => system.type === SystemsModulesType.MODULE,
-        ),
-        actualValue: actualValues.actualValue || contract.initialValue,
-        finalDate: actualValues.actualValidity || contract.finalValidity,
+        systemsAndModules: contract.systems,
+        actualMonthValue: actualValues?.actualMonthValue || contract.monthValue,
+        finalDate: actualValues?.actualValidity || contract.finalValidity,
       } as ContractDetailsResponseDTO;
     } catch (err) {
       this.logger.error(`Failed to get all contracts. Cause: ${err}`);
@@ -233,7 +233,7 @@ export class ContractService {
             month: '2-digit',
             year: 'numeric',
           }),
-          value: contract.initialValue.toLocaleString('pt-BR', {
+          monthValue: contract.monthValue.toLocaleString('pt-BR', {
             style: 'currency',
             currency: 'BRL',
           }),
@@ -271,12 +271,7 @@ export class ContractService {
       if (contract) {
         const result = {
           ...contract,
-          systems: contract.systems.filter(
-            (f) => f.type === SystemsModulesType.SYSTEM,
-          ),
-          modules: contract.systems.filter(
-            (f) => f.type === SystemsModulesType.MODULE,
-          ),
+          systemsAndModules: contract.systems,
         };
 
         return result;
@@ -289,6 +284,19 @@ export class ContractService {
       throw new InternalServerErrorException({
         code: CodeErrors.FAIL_TO_GET_CONTRACTS,
         message: `Failed to get contract by id ${id}`,
+      });
+    }
+  }
+
+  async deleteContractById(id: number): Promise<void> {
+    try {
+      await this.contractRepository.delete({ contractId: id });
+    } catch (err) {
+      this.logger.error(`Failed to delete contract by id ${id}. Cause: ${err}`);
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_DELETE_CONTRACT,
+        message: `Failed to DELETE contract by id ${id}`,
       });
     }
   }
@@ -399,6 +407,7 @@ export class ContractService {
               deploymentDate: system.deploymentDate || null,
               type: SystemsModulesType.SYSTEM,
               contractId: contract.contractId,
+              installments: system.installments || null,
             } as ContractsSystemsModules),
         );
 
@@ -413,6 +422,7 @@ export class ContractService {
               deploymentDate: mod.deploymentDate || null,
               type: SystemsModulesType.MODULE,
               contractId: contract.contractId,
+              installments: mod.installments || null,
             } as ContractsSystemsModules),
         );
 
@@ -424,7 +434,9 @@ export class ContractService {
     } catch (err) {
       await queryRunner.rollbackTransaction();
       this.logger.error(
-        `Failed to create contract number ${data.contractNumber}. Cause: ${err}`,
+        `Failed to create contract number ${
+          data.contractNumber
+        }. Cause: ${JSON.stringify(err)}`,
       );
 
       if (
@@ -432,6 +444,12 @@ export class ContractService {
         err instanceof InternalServerErrorException
       )
         throw err;
+
+      if (err.code === '23505')
+        throw new BadRequestException({
+          code: 'DUPLICATED_RESOURCE',
+          message: 'Contract already exists.',
+        });
 
       throw new InternalServerErrorException({
         code: CodeErrors.FAIL_TO_CREATE_CONTRACT,

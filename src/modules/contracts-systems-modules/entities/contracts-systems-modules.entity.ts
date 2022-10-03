@@ -33,7 +33,10 @@ export class ContractsSystemsModules extends BaseEntity {
   contractId: number;
 
   @Column()
-  value: number;
+  monthValue: number;
+
+  @Column()
+  installments: number;
 
   @CreateDateColumn()
   createdAt?: Date;

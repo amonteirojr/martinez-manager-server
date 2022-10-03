@@ -42,6 +42,7 @@ export class AdmentmentService {
               ...system,
               type: SystemsModulesType.SYSTEM,
               admentmentId: dto.admentmentId,
+              installments: system.installments || null,
             } as AdmentmentsSystemsModulesDTO),
         );
 
@@ -55,6 +56,7 @@ export class AdmentmentService {
               ...mod,
               type: SystemsModulesType.MODULE,
               admentmentId: dto.admentmentId,
+              installments: mod.installments || null,
             } as AdmentmentsSystemsModulesDTO),
         );
 
@@ -116,6 +118,7 @@ export class AdmentmentService {
               ...system,
               type: SystemsModulesType.SYSTEM,
               admentmentId: data.admentmentId,
+              installments: system.installments || null,
             } as AdmentmentsSystemsModulesDTO),
         );
 
@@ -134,6 +137,7 @@ export class AdmentmentService {
               ...mod,
               type: SystemsModulesType.MODULE,
               admentmentId: data.admentmentId,
+              installments: mod.installments || null,
             } as AdmentmentsSystemsModulesDTO),
         );
 
@@ -175,12 +179,7 @@ export class AdmentmentService {
       if (admentment) {
         const result = {
           ...admentment,
-          systems: admentment.systems.filter(
-            (f) => f.type === SystemsModulesType.SYSTEM,
-          ),
-          modules: admentment.systems.filter(
-            (f) => f.type === SystemsModulesType.MODULE,
-          ),
+          systemsAndModules: admentment.systems,
         };
 
         return result;
@@ -199,7 +198,7 @@ export class AdmentmentService {
 
   async deleteById(id: number): Promise<void> {
     try {
-      await this.admentmentRepository.softDelete({ admentmentId: id });
+      await this.admentmentRepository.delete({ admentmentId: id });
     } catch (err) {
       this.logger.error(`Failed to get admentment by id ${id}. Cause: ${err}`);
 

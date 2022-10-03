@@ -11,13 +11,13 @@ import {
   OneToMany,
   ManyToMany,
   JoinTable,
+  DeleteDateColumn,
 } from 'typeorm';
 import { Customer } from '../../customer/entities/customer.entity';
 import { Admentment } from '../../admentment/entities/admentment.entity';
 import { ContractsSystemsModules } from '../../contracts-systems-modules/entities/contracts-systems-modules.entity';
 import { PaymentMode } from '../../payment-mode/entities/payment-mode.entity';
 import { BiddingModality } from 'src/modules/bidding-modality/entities/bidding-modality.entity';
-import { LawArticle } from 'src/modules/law-article/entities/law-article.entity';
 import { Law } from 'src/modules/law/entities/law.entity';
 
 @Entity({ name: 'contracts' })
@@ -38,7 +38,10 @@ export class Contract extends BaseEntity {
   subject?: string;
 
   @Column()
-  initialValue: number;
+  monthValue: number;
+
+  @Column()
+  installments: number;
 
   @Column()
   signatureDate: string;
@@ -81,6 +84,11 @@ export class Contract extends BaseEntity {
 
   @UpdateDateColumn()
   updatedAt?: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+
+  totalValue?: number;
 
   @ManyToOne(() => Customer, (customer) => customer.contracts)
   @JoinColumn({ name: 'customerId' })

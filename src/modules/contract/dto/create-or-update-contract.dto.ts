@@ -19,6 +19,12 @@ export class SystemsModulesDTO {
   @IsNumber()
   systemModuleId: number;
 
+  @IsNumber()
+  installments: number;
+
+  @IsNumber()
+  monthValue: number;
+
   @IsEnum(SystemsModulesType)
   type?: SystemsModulesType;
 
@@ -78,13 +84,22 @@ export class CreateOrUpdateContractDTO {
   subject: string;
 
   @ApiProperty({
-    description: 'Valor inicial do contrato',
+    description: 'Valor mensal inicial do contrato',
     example: 10000,
     type: Number,
   })
   @IsNumber()
   @IsNotEmpty()
-  initialValue: number;
+  monthValue: number;
+
+  @ApiProperty({
+    description: 'Quantidade de parcelas',
+    example: 1,
+    type: Number,
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  installments: number;
 
   @ApiProperty({
     description: 'Número da licitação',

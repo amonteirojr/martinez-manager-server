@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -111,5 +112,13 @@ export class ContractController {
   async getContractAdmentments(@Res() res: Response, @Param('id') id: number) {
     const admentments = await this.contractService.getContractAdmentments(id);
     return res.send(admentments);
+  }
+
+  @Delete('/:id')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteById(@Res() res: Response, @Param('id') id: number) {
+    await this.contractService.deleteContractById(id);
+    return res.send();
   }
 }

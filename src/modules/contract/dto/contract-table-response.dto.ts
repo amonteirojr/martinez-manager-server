@@ -52,5 +52,12 @@ export class ContractTableResponseDTO {
     example: 'R$ 10.000,00',
   })
   @IsString()
-  value: string;
+  monthValue: string;
+
+  @ApiProperty({
+    description: 'Quantidade Valor do contrato',
+    example: '1',
+  })
+  @IsNumber()
+  installments: number;
 }

@@ -2,10 +2,16 @@ import { IsNumber, IsString } from 'class-validator';
 
 export class ContractResponseDTO {
   @IsNumber()
-  initialValue: number;
+  initialMonthValue: number;
 
   @IsNumber()
-  actualValue: number;
+  actualMonthValue: number;
+
+  @IsNumber()
+  initialInstallments: number;
+
+  @IsNumber()
+  actualInstallments?: number;
 
   @IsString()
   actualValidity: string;
@@ -27,4 +33,7 @@ export class ContractResponseDTO {
 
   @IsString()
   customerType: string;
+
+  @IsNumber()
+  monthValue?: number;
 }
