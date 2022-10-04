@@ -12,6 +12,7 @@ import { AdmentmentsSystemsModulesDTO } from '../admentments-systems-modules/dto
 import { AdmentmentsSystemsModules } from '../admentments-systems-modules/entities/admentments-systems-modules.entity';
 import { CreateAdmentmentDTO } from './dto/create-admentment.dto';
 import { Admentment } from './entities/admentment.entity';
+import { File } from '../file/entitites/file.entity';
 
 @Injectable()
 export class AdmentmentService {
@@ -43,6 +44,7 @@ export class AdmentmentService {
               type: SystemsModulesType.SYSTEM,
               admentmentId: dto.admentmentId,
               installments: system.installments || null,
+              deploymentDate: system.deploymentDate || null,
             } as AdmentmentsSystemsModulesDTO),
         );
 
@@ -57,6 +59,7 @@ export class AdmentmentService {
               type: SystemsModulesType.MODULE,
               admentmentId: dto.admentmentId,
               installments: mod.installments || null,
+              deploymentDate: mod.deploymentDate || null,
             } as AdmentmentsSystemsModulesDTO),
         );
 
@@ -119,6 +122,7 @@ export class AdmentmentService {
               type: SystemsModulesType.SYSTEM,
               admentmentId: data.admentmentId,
               installments: system.installments || null,
+              deploymentDate: system.deploymentDate || null,
             } as AdmentmentsSystemsModulesDTO),
         );
 
@@ -138,6 +142,7 @@ export class AdmentmentService {
               type: SystemsModulesType.MODULE,
               admentmentId: data.admentmentId,
               installments: mod.installments || null,
+              deploymentDate: mod.deploymentDate || null,
             } as AdmentmentsSystemsModulesDTO),
         );
 
@@ -197,8 +202,28 @@ export class AdmentmentService {
   }
 
   async deleteById(id: number): Promise<void> {
+    const dataSource = !AppDataSource.isInitialized
+      ? await AppDataSource.initialize()
+      : AppDataSource;
+
+    const queryRunner = dataSource.createQueryRunner();
+    if (!queryRunner.connection) await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
-      await this.admentmentRepository.delete({ admentmentId: id });
+      await queryRunner.manager.delete(AdmentmentsSystemsModules, {
+        admentmentId: id,
+      });
+
+      await queryRunner.manager.delete(File, {
+        admentmentId: id,
+      });
+
+      await queryRunner.manager.delete(Admentment, {
+        admentmentId: id,
+      });
+
+      await queryRunner.commitTransaction();
     } catch (err) {
       this.logger.error(`Failed to get admentment by id ${id}. Cause: ${err}`);
 
@@ -206,6 +231,8 @@ export class AdmentmentService {
         code: CodeErrors.FAIL_TO_GET_ADMENTMENT,
         message: 'Failed to get admentment by id',
       });
+    } finally {
+      await queryRunner.release();
     }
   }
 

@@ -22,6 +22,7 @@ import { ContractResponseDTO } from './dto/contract-response.dto';
 import { AdmentmentService } from '../admentment/admentment.service';
 import { ContractDetailsResponseDTO } from './dto/contract-details-response.dto';
 import { filter } from 'rxjs';
+import { File } from '../file/entitites/file.entity';
 
 @Injectable()
 export class ContractService {
@@ -289,8 +290,28 @@ export class ContractService {
   }
 
   async deleteContractById(id: number): Promise<void> {
+    const dataSource = !AppDataSource.isInitialized
+      ? await AppDataSource.initialize()
+      : AppDataSource;
+
+    const queryRunner = dataSource.createQueryRunner();
+    if (!queryRunner.connection) await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
-      await this.contractRepository.delete({ contractId: id });
+      await queryRunner.manager.delete(ContractsSystemsModules, {
+        contractId: id,
+      });
+
+      await queryRunner.manager.delete(File, {
+        contractId: id,
+      });
+
+      await queryRunner.manager.delete(Contract, {
+        contractId: id,
+      });
+
+      await queryRunner.commitTransaction();
     } catch (err) {
       this.logger.error(`Failed to delete contract by id ${id}. Cause: ${err}`);
 
@@ -298,6 +319,8 @@ export class ContractService {
         code: CodeErrors.FAIL_TO_DELETE_CONTRACT,
         message: `Failed to DELETE contract by id ${id}`,
       });
+    } finally {
+      await queryRunner.release();
     }
   }
 

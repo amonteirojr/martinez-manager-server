@@ -11,12 +11,11 @@ export class AdmentmentsSystemsModulesDTO {
   @IsNumber()
   systemModuleId: number;
 
-  @IsNumber()
-  monthValue: number;
+  @IsString()
+  deploymentDate?: string;
 
-  @IsOptional()
-  @IsNumber()
-  installments?: number;
+  @IsString()
+  deploymentResponsible?: string;
 
   @IsString()
   @IsOptional()
@@ -24,4 +23,12 @@ export class AdmentmentsSystemsModulesDTO {
 
   @IsNumber()
   admentmentId: number;
+
+  @IsNumber()
+  monthValue: number;
+
+  @IsString()
+  @IsOptional()
+  @IsNumber()
+  installments?: number;
 }

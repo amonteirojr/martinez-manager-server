@@ -30,6 +30,12 @@ export class AdmentmentsSystemsModules extends BaseEntity {
   monthValue?: number;
 
   @Column()
+  deploymentDate?: string;
+
+  @Column()
+  deploymentResponsible?: string;
+
+  @Column()
   admentmentId: number;
 
   @CreateDateColumn()
