@@ -14,6 +14,7 @@ import {
 } from 'typeorm';
 import { AdmentmentType } from '../../admentment-type/entities/admentment-type.entity';
 import { Contract } from '../../contract/entitites/contract.entity';
+import { ContractsSystems } from 'src/modules/contracts-systems/entities/contracts-systems.entity';
 
 @Entity({ name: 'admentments' })
 export class Admentment extends BaseEntity {
@@ -80,11 +81,11 @@ export class Admentment extends BaseEntity {
   @JoinColumn({ name: 'admentmentId' })
   files?: File[];
 
-  @ManyToMany(() => AdmentmentsSystemsModules)
+  @ManyToMany(() => ContractsSystems)
   @JoinTable({
-    name: 'admentments_systems_modules',
-    joinColumn: { name: 'admentmentId' },
+    name: 'contracts_systems',
+    joinColumn: { name: 'contractId' },
     inverseJoinColumn: { name: 'id' },
   })
-  systems: AdmentmentsSystemsModules[];
+  systems?: ContractsSystems[];
 }

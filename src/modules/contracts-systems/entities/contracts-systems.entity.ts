@@ -1,4 +1,4 @@
-import { ContractsSystems } from 'src/modules/contracts-systems/entities/contracts-systems.entity';
+import { ContractsSystemsModules } from 'src/modules/contracts-systems-modules/entities/contracts-systems-modules.entity';
 import {
   Entity,
   Column,
@@ -6,35 +6,35 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BaseEntity,
-  ManyToOne,
+  OneToMany,
   JoinColumn,
 } from 'typeorm';
 
-@Entity({ name: 'contracts_systems_modules' })
-export class ContractsSystemsModules extends BaseEntity {
+@Entity({ name: 'contracts_systems' })
+export class ContractsSystems extends BaseEntity {
   @PrimaryGeneratedColumn('identity')
   id?: number;
 
   @Column()
-  contractSystemId?: number;
-
-  @Column()
-  moduleId: number;
+  systemId: number;
 
   @Column()
   deploymentDate?: string;
 
   @Column()
+  comments?: string;
+
+  @Column()
   responsibleId?: number;
 
   @Column()
-  comments?: string;
+  installments: number;
 
   @Column()
   monthValue: number;
 
   @Column()
-  installments: number;
+  contractId: number;
 
   @CreateDateColumn()
   createdAt?: Date;
@@ -42,7 +42,7 @@ export class ContractsSystemsModules extends BaseEntity {
   @UpdateDateColumn()
   updatedAt?: Date;
 
-  @ManyToOne(() => ContractsSystems, (system) => system.modules)
+  @OneToMany(() => ContractsSystemsModules, (modules) => modules.system)
   @JoinColumn({ name: 'contractSystemId' })
-  system?: ContractsSystems[];
+  modules?: ContractsSystemsModules[];
 }

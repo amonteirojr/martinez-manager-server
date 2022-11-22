@@ -7,13 +7,15 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import AppDataSource from 'src/database/datasource';
-import { SystemsModulesType } from '../../enums/SystemsModulesType';
 import { CodeErrors } from 'src/shared/code-errors.enum';
 import { Repository } from 'typeorm';
 import { ContractsSystemsModules } from '../contracts-systems-modules/entities/contracts-systems-modules.entity';
 import { ContractInfoCountResponseDTO } from './dto/contract-info-count-response.dto';
 import { ContractTableResponseDTO } from './dto/contract-table-response.dto';
-import { CreateOrUpdateContractDTO } from './dto/create-or-update-contract.dto';
+import {
+  CreateOrUpdateContractDTO,
+  ModulesDTO,
+} from './dto/create-or-update-contract.dto';
 import { UpdateContractResponseDTO } from './dto/update-contract-response.dto';
 import { Contract } from './entitites/contract.entity';
 import { format } from 'date-fns';
@@ -21,8 +23,8 @@ import { Admentment } from '../admentment/entities/admentment.entity';
 import { ContractResponseDTO } from './dto/contract-response.dto';
 import { AdmentmentService } from '../admentment/admentment.service';
 import { ContractDetailsResponseDTO } from './dto/contract-details-response.dto';
-import { filter } from 'rxjs';
 import { File } from '../file/entitites/file.entity';
+import { ContractsSystems } from '../contracts-systems/entities/contracts-systems.entity';
 
 @Injectable()
 export class ContractService {
@@ -262,23 +264,16 @@ export class ContractService {
             customerType: true,
             city: true,
           },
-          systems: true,
+          systems: {
+            modules: true,
+          },
           paymentMode: true,
           biddingModality: true,
           law: true,
         },
       });
 
-      if (contract) {
-        const result = {
-          ...contract,
-          systemsAndModules: contract.systems,
-        };
-
-        return result;
-      }
-
-      return;
+      return contract;
     } catch (err) {
       this.logger.error(`Failed to get contract by id ${id}. Cause: ${err}`);
 
@@ -299,9 +294,23 @@ export class ContractService {
     await queryRunner.startTransaction();
 
     try {
-      await queryRunner.manager.delete(ContractsSystemsModules, {
-        contractId: id,
+      const modulesId = await queryRunner.manager.find(ContractsSystems, {
+        where: { contractId: id },
       });
+
+      if (modulesId && modulesId.length > 0) {
+        await Promise.all(
+          modulesId.map(async (modId) => {
+            await queryRunner.manager.delete(ContractsSystemsModules, {
+              contractSystemId: modId.id,
+            });
+          }),
+        );
+
+        await queryRunner.manager.delete(ContractsSystems, {
+          contractId: id,
+        });
+      }
 
       await queryRunner.manager.delete(File, {
         contractId: id,
@@ -328,7 +337,7 @@ export class ContractService {
     id: number,
     data: CreateOrUpdateContractDTO,
   ): Promise<UpdateContractResponseDTO> {
-    const { systems, modules } = data;
+    const { systems } = data;
 
     const dataSource = !AppDataSource.isInitialized
       ? await AppDataSource.initialize()
@@ -338,7 +347,6 @@ export class ContractService {
     if (!queryRunner.connection) await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    delete data.modules;
     delete data.systems;
 
     try {
@@ -348,42 +356,59 @@ export class ContractService {
         data,
       );
 
-      await queryRunner.manager.delete(ContractsSystemsModules, {
-        contractId: id,
-        type: SystemsModulesType.SYSTEM,
+      const systemsId = await queryRunner.manager.find(ContractsSystems, {
+        where: { contractId: id },
       });
 
-      if (systems && systems.length > 0) {
-        const newSystems = systems.map(
-          (system) =>
-            ({
-              ...system,
-              deploymentDate: system.deploymentDate || null,
-              type: SystemsModulesType.SYSTEM,
-              contractId: id,
-            } as ContractsSystemsModules),
+      if (systemsId) {
+        await Promise.all(
+          systemsId.map(async (systemId) => {
+            await queryRunner.manager.delete(ContractsSystemsModules, {
+              contractSystemId: systemId,
+            });
+          }),
         );
 
-        await queryRunner.manager.save(ContractsSystemsModules, newSystems);
+        await queryRunner.manager.delete(ContractsSystems, {
+          contractId: id,
+        });
       }
 
-      await queryRunner.manager.delete(ContractsSystemsModules, {
-        contractId: id,
-        type: SystemsModulesType.MODULE,
-      });
-
-      if (modules && modules.length > 0) {
-        const newModules = modules.map(
-          (mod) =>
-            ({
-              ...mod,
-              deploymentDate: mod.deploymentDate || null,
-              type: SystemsModulesType.MODULE,
+      if (systems && systems.length > 0) {
+        await Promise.all(
+          systems.map(async (system) => {
+            const newSystem = {
+              ...system,
+              deploymentDate: system.deploymentDate || null,
               contractId: id,
-            } as ContractsSystemsModules),
-        );
+            } as Partial<ContractsSystems>;
 
-        await queryRunner.manager.save(ContractsSystemsModules, newModules);
+            const { id: contractSystemId } = await queryRunner.manager.save(
+              ContractsSystems,
+              newSystem,
+            );
+
+            const { modules } = system;
+
+            if (modules && modules.length > 0) {
+              const newModules = modules.map(
+                (mod) =>
+                  ({
+                    ...mod,
+                    deploymentDate: mod.deploymentDate || null,
+                    installments: mod.installments || null,
+                    moduleId: mod.id,
+                    contractSystemId,
+                  } as ModulesDTO),
+              );
+
+              await queryRunner.manager.save(
+                ContractsSystemsModules,
+                newModules,
+              );
+            }
+          }),
+        );
       }
 
       await queryRunner.commitTransaction();
@@ -409,7 +434,7 @@ export class ContractService {
   }
 
   async createContract(data: CreateOrUpdateContractDTO): Promise<Contract> {
-    const { systems, modules } = data;
+    const { systems } = data;
 
     const dataSource = !AppDataSource.isInitialized
       ? await AppDataSource.initialize()
@@ -423,33 +448,41 @@ export class ContractService {
       const contract = await queryRunner.manager.save(Contract, data);
 
       if (systems && systems.length > 0) {
-        const newSystems = systems.map(
-          (system) =>
-            ({
+        await Promise.all(
+          systems.map(async (system) => {
+            const newSystem = {
               ...system,
               deploymentDate: system.deploymentDate || null,
-              type: SystemsModulesType.SYSTEM,
               contractId: contract.contractId,
-              installments: system.installments || null,
-            } as ContractsSystemsModules),
+              monthValue: system.monthValue,
+            } as ContractsSystems;
+
+            const { id } = await queryRunner.manager.save(
+              ContractsSystems,
+              newSystem,
+            );
+
+            const { modules } = system;
+
+            if (modules && modules.length > 0) {
+              const newModules = modules.map(
+                (mod) =>
+                  ({
+                    ...mod,
+                    deploymentDate: mod.deploymentDate || null,
+                    installments: mod.installments || null,
+                    moduleId: mod.id,
+                    contractSystemId: id,
+                  } as ModulesDTO),
+              );
+
+              await queryRunner.manager.save(
+                ContractsSystemsModules,
+                newModules,
+              );
+            }
+          }),
         );
-
-        await queryRunner.manager.save(ContractsSystemsModules, newSystems);
-      }
-
-      if (modules && modules.length > 0) {
-        const newModules = modules.map(
-          (mod) =>
-            ({
-              ...mod,
-              deploymentDate: mod.deploymentDate || null,
-              type: SystemsModulesType.MODULE,
-              contractId: contract.contractId,
-              installments: mod.installments || null,
-            } as ContractsSystemsModules),
-        );
-
-        await queryRunner.manager.save(ContractsSystemsModules, newModules);
       }
 
       await queryRunner.commitTransaction();

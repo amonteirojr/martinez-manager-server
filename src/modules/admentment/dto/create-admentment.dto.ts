@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
-import { SystemsModulesDTO } from 'src/modules/contract/dto/create-or-update-contract.dto';
+import { SystemsDTO } from 'src/modules/contract/dto/create-or-update-contract.dto';
 
 export class CreateAdmentmentDTO {
   @ApiProperty({
@@ -110,11 +110,5 @@ export class CreateAdmentmentDTO {
     description: 'Sistemas do aditamento',
   })
   @IsOptional()
-  systems?: SystemsModulesDTO[];
-
-  @ApiProperty({
-    description: 'Módulos do aditamento',
-  })
-  @IsOptional()
-  modules?: SystemsModulesDTO[];
+  systems?: SystemsDTO[];
 }

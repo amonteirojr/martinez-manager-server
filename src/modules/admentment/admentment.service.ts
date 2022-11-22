@@ -5,14 +5,15 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import AppDataSource from 'src/database/datasource';
-import { SystemsModulesType } from '../../enums/SystemsModulesType';
 import { CodeErrors } from 'src/shared/code-errors.enum';
 import { Repository } from 'typeorm';
-import { AdmentmentsSystemsModulesDTO } from '../admentments-systems-modules/dto/create-admentments-systems-modules.dto';
 import { AdmentmentsSystemsModules } from '../admentments-systems-modules/entities/admentments-systems-modules.entity';
 import { CreateAdmentmentDTO } from './dto/create-admentment.dto';
 import { Admentment } from './entities/admentment.entity';
 import { File } from '../file/entitites/file.entity';
+import { ContractsSystems } from '../contracts-systems/entities/contracts-systems.entity';
+import { ModulesDTO } from '../contract/dto/create-or-update-contract.dto';
+import { ContractsSystemsModules } from '../contracts-systems-modules/entities/contracts-systems-modules.entity';
 
 @Injectable()
 export class AdmentmentService {
@@ -23,7 +24,7 @@ export class AdmentmentService {
   ) {}
 
   async createAdmentment(dto: CreateAdmentmentDTO): Promise<Admentment> {
-    const { systems, modules } = dto;
+    const { systems } = dto;
 
     const dataSource = !AppDataSource.isInitialized
       ? await AppDataSource.initialize()
@@ -37,35 +38,40 @@ export class AdmentmentService {
       const admentment = await queryRunner.manager.save(Admentment, dto);
 
       if (systems && systems.length > 0) {
-        const newSystems = systems.map(
-          (system) =>
-            ({
+        await Promise.all(
+          systems.map(async (system) => {
+            const newSystem = {
               ...system,
-              type: SystemsModulesType.SYSTEM,
-              admentmentId: dto.admentmentId,
-              installments: system.installments || null,
               deploymentDate: system.deploymentDate || null,
-            } as AdmentmentsSystemsModulesDTO),
+              contractId: dto.contractId,
+            } as Partial<ContractsSystems>;
+
+            const { id } = await queryRunner.manager.save(
+              ContractsSystems,
+              newSystem,
+            );
+
+            const { modules } = system;
+
+            if (modules && modules.length > 0) {
+              const newModules = modules.map(
+                (mod) =>
+                  ({
+                    ...mod,
+                    deploymentDate: mod.deploymentDate || null,
+                    installments: mod.installments || null,
+                    moduleId: mod.id,
+                    contractSystemId: id,
+                  } as ModulesDTO),
+              );
+
+              await queryRunner.manager.save(
+                ContractsSystemsModules,
+                newModules,
+              );
+            }
+          }),
         );
-
-        await queryRunner.manager.save(AdmentmentsSystemsModules, newSystems);
-      }
-
-      if (modules && modules.length > 0) {
-        const newModules = modules.map(
-          (mod) =>
-            ({
-              ...mod,
-              type: SystemsModulesType.MODULE,
-              admentmentId: dto.admentmentId,
-              installments: mod.installments || null,
-              deploymentDate: mod.deploymentDate || null,
-            } as AdmentmentsSystemsModulesDTO),
-        );
-
-        await queryRunner.manager.save(AdmentmentsSystemsModules, {
-          data: newModules,
-        });
       }
 
       await queryRunner.commitTransaction();
@@ -89,7 +95,7 @@ export class AdmentmentService {
     id: number,
     data: CreateAdmentmentDTO,
   ): Promise<{ admentmentId: number }> {
-    const { systems, modules } = data;
+    const { systems } = data;
 
     const dataSource = !AppDataSource.isInitialized
       ? await AppDataSource.initialize()
@@ -99,7 +105,6 @@ export class AdmentmentService {
     if (!queryRunner.connection) await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    delete data.modules;
     delete data.systems;
 
     try {
@@ -109,46 +114,62 @@ export class AdmentmentService {
         data,
       );
 
-      await queryRunner.manager.delete(AdmentmentsSystemsModules, {
-        admentmentId: id,
-        type: SystemsModulesType.SYSTEM,
+      const { contractId } = data;
+
+      const systemsId = await queryRunner.manager.find(ContractsSystems, {
+        where: { contractId },
       });
+
+      if (systemsId) {
+        await Promise.all(
+          systemsId.map(async (systemId) => {
+            await queryRunner.manager.delete(ContractsSystemsModules, {
+              contractSystemId: systemId,
+            });
+          }),
+        );
+
+        await queryRunner.manager.delete(ContractsSystems, {
+          contractId,
+        });
+      }
 
       if (systems && systems.length > 0) {
-        const newSystems = systems.map(
-          (system) =>
-            ({
+        await Promise.all(
+          systems.map(async (system) => {
+            const newSystem = {
               ...system,
-              type: SystemsModulesType.SYSTEM,
-              admentmentId: data.admentmentId,
-              installments: system.installments || null,
               deploymentDate: system.deploymentDate || null,
-            } as AdmentmentsSystemsModulesDTO),
+              contractId,
+            } as Partial<ContractsSystems>;
+
+            const { id: contractSystemId } = await queryRunner.manager.save(
+              ContractsSystems,
+              newSystem,
+            );
+
+            const { modules } = system;
+
+            if (modules && modules.length > 0) {
+              const newModules = modules.map(
+                (mod) =>
+                  ({
+                    ...mod,
+                    deploymentDate: mod.deploymentDate || null,
+                    installments: mod.installments || null,
+                    moduleId: mod.id,
+                    contractSystemId,
+                  } as ModulesDTO),
+              );
+
+              await queryRunner.manager.save(
+                ContractsSystemsModules,
+                newModules,
+              );
+            }
+          }),
         );
-
-        await queryRunner.manager.save(AdmentmentsSystemsModules, newSystems);
       }
-
-      await queryRunner.manager.delete(AdmentmentsSystemsModules, {
-        admentmentId: id,
-        type: SystemsModulesType.MODULE,
-      });
-
-      if (modules && modules.length > 0) {
-        const newModules = modules.map(
-          (mod) =>
-            ({
-              ...mod,
-              type: SystemsModulesType.MODULE,
-              admentmentId: data.admentmentId,
-              installments: mod.installments || null,
-              deploymentDate: mod.deploymentDate || null,
-            } as AdmentmentsSystemsModulesDTO),
-        );
-
-        await queryRunner.manager.save(AdmentmentsSystemsModules, newModules);
-      }
-
       await queryRunner.commitTransaction();
 
       if (updated)
@@ -171,26 +192,19 @@ export class AdmentmentService {
     }
   }
 
-  async getById(id: number): Promise<any> {
+  async getById(id: number): Promise<Admentment> {
     try {
       const admentment = await this.admentmentRepository.findOne({
         where: { admentmentId: id },
         relations: {
           files: true,
-          systems: true,
+          systems: {
+            modules: true,
+          },
         },
       });
 
-      if (admentment) {
-        const result = {
-          ...admentment,
-          systemsAndModules: admentment.systems,
-        };
-
-        return result;
-      }
-
-      return;
+      return admentment;
     } catch (err) {
       this.logger.error(`Failed to get admentment by id ${id}. Cause: ${err}`);
 
@@ -211,10 +225,6 @@ export class AdmentmentService {
     await queryRunner.startTransaction();
 
     try {
-      await queryRunner.manager.delete(AdmentmentsSystemsModules, {
-        admentmentId: id,
-      });
-
       await queryRunner.manager.delete(File, {
         admentmentId: id,
       });

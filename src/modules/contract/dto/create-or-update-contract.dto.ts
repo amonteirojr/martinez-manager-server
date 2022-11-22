@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
-  IsEnum,
   IsISO8601,
   IsNotEmpty,
   IsNumber,
@@ -10,14 +9,16 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
-import { SystemsModulesType } from '../../../enums/SystemsModulesType';
 
-export class SystemsModulesDTO {
+export class ModulesDTO {
   @IsNumber()
   id?: number;
 
   @IsNumber()
-  systemModuleId: number;
+  contractSystemId: number;
+
+  @IsNumber()
+  moduleId: number;
 
   @IsNumber()
   installments: number;
@@ -25,8 +26,32 @@ export class SystemsModulesDTO {
   @IsNumber()
   monthValue: number;
 
-  @IsEnum(SystemsModulesType)
-  type?: SystemsModulesType;
+  @IsString()
+  @IsOptional()
+  deploymentDate?: string;
+
+  @IsString()
+  @IsOptional()
+  deploymentResponsibleId?: number;
+
+  @IsString()
+  @IsOptional()
+  comments?: string;
+}
+
+export class SystemsDTO {
+  @IsNumber()
+  id?: number;
+
+  @IsOptional()
+  @IsNumber()
+  systemId?: number;
+
+  @IsNumber()
+  installments: number;
+
+  @IsNumber()
+  monthValue: number;
 
   @IsString()
   @IsOptional()
@@ -34,11 +59,15 @@ export class SystemsModulesDTO {
 
   @IsString()
   @IsOptional()
-  deploymentResponsible?: string;
+  deploymentResponsibleId?: number;
 
   @IsString()
   @IsOptional()
   comments?: string;
+
+  @IsArray()
+  @IsOptional()
+  modules?: ModulesDTO[];
 }
 
 export class CreateOrUpdateContractDTO {
@@ -147,12 +176,12 @@ export class CreateOrUpdateContractDTO {
   finalValidity: string;
 
   @ApiProperty({
-    description: 'Nome do responsável pelo contrato (Martinez)',
-    example: 'Fulano de Tal',
-    type: String,
+    description: 'ID do responsável Martinez',
+    example: 1,
+    type: Number,
   })
-  @IsString()
-  responsible: string;
+  @IsNumber()
+  responsibleId: number;
 
   @ApiProperty({
     description: 'Nome do responsável pelo contrato (Entidade)',
@@ -204,8 +233,5 @@ export class CreateOrUpdateContractDTO {
   paymentModeId?: number;
 
   @IsArray()
-  systems?: SystemsModulesDTO[];
-
-  @IsArray()
-  modules?: SystemsModulesDTO[];
+  systems?: SystemsDTO[];
 }

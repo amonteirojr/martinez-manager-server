@@ -15,10 +15,11 @@ import {
 } from 'typeorm';
 import { Customer } from '../../customer/entities/customer.entity';
 import { Admentment } from '../../admentment/entities/admentment.entity';
-import { ContractsSystemsModules } from '../../contracts-systems-modules/entities/contracts-systems-modules.entity';
 import { PaymentMode } from '../../payment-mode/entities/payment-mode.entity';
 import { BiddingModality } from 'src/modules/bidding-modality/entities/bidding-modality.entity';
 import { Law } from 'src/modules/law/entities/law.entity';
+import { ContractsSystems } from 'src/modules/contracts-systems/entities/contracts-systems.entity';
+import { Responsible } from 'src/modules/responsible/entities/responsible.entity';
 
 @Entity({ name: 'contracts' })
 export class Contract extends BaseEntity {
@@ -53,7 +54,7 @@ export class Contract extends BaseEntity {
   finalValidity: string;
 
   @Column()
-  responsible: string;
+  responsibleId?: number;
 
   @Column()
   customerResponsible: string;
@@ -117,11 +118,15 @@ export class Contract extends BaseEntity {
   @JoinColumn({ name: 'lawId' })
   law?: Law;
 
-  @ManyToMany(() => ContractsSystemsModules)
+  @ManyToOne(() => Responsible, (responsible) => responsible.contracts)
+  @JoinColumn({ name: 'responsibleId' })
+  responsible?: Responsible;
+
+  @ManyToMany(() => ContractsSystems)
   @JoinTable({
-    name: 'contracts_systems_modules',
+    name: 'contracts_systems',
     joinColumn: { name: 'contractId' },
     inverseJoinColumn: { name: 'id' },
   })
-  systems?: ContractsSystemsModules[];
+  systems?: ContractsSystems[];
 }

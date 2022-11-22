@@ -1,3 +1,4 @@
+import { ContractsSystemsModule } from './modules/contracts-systems/contracts-systems.module';
 import { Module } from '@nestjs/common';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
@@ -26,6 +27,7 @@ import { PaymentModeModule } from './modules/payment-mode/payment-mode.module';
 import { BiddingModalityModule } from './modules/bidding-modality/bidding-modality.module';
 import { LawModule } from './modules/law/law.module';
 import { LawArticleModule } from './modules/law-article/law-article.module';
+import { ResponsibleModule } from './modules/responsible/responsible.module';
 
 @Module({
   imports: [
@@ -59,6 +61,8 @@ import { LawArticleModule } from './modules/law-article/law-article.module';
     BiddingModalityModule,
     LawModule,
     LawArticleModule,
+    ContractsSystemsModule,
+    ResponsibleModule,
   ],
   controllers: [AppController],
 })
