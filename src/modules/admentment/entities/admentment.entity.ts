@@ -84,7 +84,7 @@ export class Admentment extends BaseEntity {
   @ManyToMany(() => ContractsSystems)
   @JoinTable({
     name: 'contracts_systems',
-    joinColumn: { name: 'contractId' },
+    joinColumn: { name: 'admentmentId' },
     inverseJoinColumn: { name: 'id' },
   })
   systems?: ContractsSystems[];

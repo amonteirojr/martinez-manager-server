@@ -25,6 +25,7 @@ import { AdmentmentService } from '../admentment/admentment.service';
 import { ContractDetailsResponseDTO } from './dto/contract-details-response.dto';
 import { File } from '../file/entitites/file.entity';
 import { ContractsSystems } from '../contracts-systems/entities/contracts-systems.entity';
+import { filter } from 'rxjs';
 
 @Injectable()
 export class ContractService {
@@ -122,11 +123,22 @@ export class ContractService {
   async getContractDetailsById(
     id: number,
   ): Promise<ContractDetailsResponseDTO> {
-    const filterDate = format(new Date(), 'yyyy-MM-dd');
+    const today = new Date();
+    const filterDate = format(today, 'yyyy-MM-dd');
 
     try {
       const contract = await this.contractRepository.findOne({
-        where: { contractId: id },
+        where: {
+          contractId: id,
+        },
+        order: {
+          contractId: 'ASC',
+          systems: {
+            modules: {
+              id: 'ASC',
+            },
+          },
+        },
         relations: {
           biddingModality: true,
           customer: {
@@ -136,8 +148,27 @@ export class ContractService {
           files: true,
           law: true,
           paymentMode: true,
-          systems: true,
-          admentments: true,
+          responsible: true,
+          systems: {
+            responsible: true,
+            modules: {
+              module: true,
+              responsible: true,
+            },
+            system: true,
+          },
+          admentments: {
+            files: true,
+            admentmentType: true,
+            systems: {
+              responsible: true,
+              modules: {
+                module: true,
+                responsible: true,
+              },
+              system: true,
+            },
+          },
         },
       });
 
@@ -171,15 +202,17 @@ export class ContractService {
                   as "actualValidity"
                 FROM "contracts"
                 LEFT JOIN "admentments" "ad" ON ad."contractId" = contracts."contractId"  
-                INNER JOIN "customers" "customer" ON customer."customerId" = contracts."customerId"  
-                INNER JOIN "customer_types" "customerType" ON "customerType"."typeId" = customer."typeId" 
                 WHERE coalesce(ad."initialDate", contracts."initialValidity") <= '${filterDate}'
                 AND contracts."deletedAt" is null
                 AND "contracts"."contractId" = ${id}`);
 
+      const onlyContractSystems = contract.systems.filter((system) => {
+        return system.admentmentId === null;
+      });
+
       return {
         ...contract,
-        systemsAndModules: contract.systems,
+        systems: onlyContractSystems,
         actualMonthValue: actualValues?.actualMonthValue || contract.monthValue,
         finalDate: actualValues?.actualValidity || contract.finalValidity,
       } as ContractDetailsResponseDTO;
@@ -350,21 +383,17 @@ export class ContractService {
     delete data.systems;
 
     try {
-      const updated = await queryRunner.manager.update(
-        Contract,
-        { contractId: id },
-        data,
-      );
+      await queryRunner.manager.update(Contract, { contractId: id }, data);
 
-      const systemsId = await queryRunner.manager.find(ContractsSystems, {
+      const contractSystems = await queryRunner.manager.find(ContractsSystems, {
         where: { contractId: id },
       });
 
-      if (systemsId) {
+      if (contractSystems && contractSystems.length > 0) {
         await Promise.all(
-          systemsId.map(async (systemId) => {
+          contractSystems.map(async (contractSystem) => {
             await queryRunner.manager.delete(ContractsSystemsModules, {
-              contractSystemId: systemId,
+              contractSystemId: contractSystem.id,
             });
           }),
         );
@@ -391,16 +420,13 @@ export class ContractService {
             const { modules } = system;
 
             if (modules && modules.length > 0) {
-              const newModules = modules.map(
-                (mod) =>
-                  ({
-                    ...mod,
-                    deploymentDate: mod.deploymentDate || null,
-                    installments: mod.installments || null,
-                    moduleId: mod.id,
-                    contractSystemId,
-                  } as ModulesDTO),
-              );
+              const newModules = modules.map((mod) => ({
+                ...mod,
+                deploymentDate: mod.deploymentDate || null,
+                installments: mod.installments || null,
+                moduleId: mod.moduleId,
+                contractSystemId,
+              }));
 
               await queryRunner.manager.save(
                 ContractsSystemsModules,
@@ -413,10 +439,9 @@ export class ContractService {
 
       await queryRunner.commitTransaction();
 
-      if (updated)
-        this.logger.log(
-          `Contract id ${id} and number ${data.contractNumber} was updated`,
-        );
+      this.logger.log(
+        `Contract id ${id} and number ${data.contractNumber} was updated`,
+      );
 
       return { contractId: id };
     } catch (err) {

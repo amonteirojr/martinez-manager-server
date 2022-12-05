@@ -58,7 +58,6 @@ export class ContractController {
   @ApiResponse({ type: Contract })
   async getContractById(@Res() res: Response, @Param('id') contractId: number) {
     const contract = await this.contractService.getContractById(contractId);
-
     return res.send(contract);
   }
 

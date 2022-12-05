@@ -44,6 +44,9 @@ export class AdmentmentService {
               ...system,
               deploymentDate: system.deploymentDate || null,
               contractId: dto.contractId,
+              installments: system.installments || null,
+              admentmentId: admentment.admentmentId,
+              monthValue: system.monthValue,
             } as Partial<ContractsSystems>;
 
             const { id } = await queryRunner.manager.save(
@@ -60,7 +63,7 @@ export class AdmentmentService {
                     ...mod,
                     deploymentDate: mod.deploymentDate || null,
                     installments: mod.installments || null,
-                    moduleId: mod.id,
+                    moduleId: mod.moduleId,
                     contractSystemId: id,
                   } as ModulesDTO),
               );
@@ -108,29 +111,26 @@ export class AdmentmentService {
     delete data.systems;
 
     try {
-      const updated = await queryRunner.manager.update(
-        Admentment,
-        { admentmentId: id },
-        data,
-      );
+      await queryRunner.manager.update(Admentment, { admentmentId: id }, data);
 
       const { contractId } = data;
 
-      const systemsId = await queryRunner.manager.find(ContractsSystems, {
-        where: { contractId },
+      const contractsSystem = await queryRunner.manager.find(ContractsSystems, {
+        where: { contractId, admentmentId: id },
       });
 
-      if (systemsId) {
+      if (contractsSystem && contractsSystem.length > 0) {
         await Promise.all(
-          systemsId.map(async (systemId) => {
+          contractsSystem.map(async (system) => {
             await queryRunner.manager.delete(ContractsSystemsModules, {
-              contractSystemId: systemId,
+              contractSystemId: system.id,
             });
           }),
         );
 
         await queryRunner.manager.delete(ContractsSystems, {
           contractId,
+          admentmentId: id,
         });
       }
 
@@ -141,6 +141,9 @@ export class AdmentmentService {
               ...system,
               deploymentDate: system.deploymentDate || null,
               contractId,
+              admentmentId: id,
+              installments: system.installments || null,
+              monthValue: system.monthValue,
             } as Partial<ContractsSystems>;
 
             const { id: contractSystemId } = await queryRunner.manager.save(
@@ -157,7 +160,7 @@ export class AdmentmentService {
                     ...mod,
                     deploymentDate: mod.deploymentDate || null,
                     installments: mod.installments || null,
-                    moduleId: mod.id,
+                    moduleId: mod.moduleId,
                     contractSystemId,
                   } as ModulesDTO),
               );
@@ -172,10 +175,9 @@ export class AdmentmentService {
       }
       await queryRunner.commitTransaction();
 
-      if (updated)
-        this.logger.log(
-          `Admentment id ${id} and number ${data.admentmentNumber} was updated`,
-        );
+      this.logger.log(
+        `Admentment id ${id} and number ${data.admentmentNumber} was updated`,
+      );
 
       return { admentmentId: id };
     } catch (err) {
@@ -228,6 +230,24 @@ export class AdmentmentService {
       await queryRunner.manager.delete(File, {
         admentmentId: id,
       });
+
+      const systems = await queryRunner.manager.find(ContractsSystems, {
+        where: { admentmentId: id },
+      });
+
+      if (systems && systems.length > 0) {
+        await Promise.all(
+          systems.map(async (system) => {
+            await queryRunner.manager.delete(ContractsSystemsModules, {
+              contractSystemId: system.id,
+            });
+          }),
+        );
+
+        await queryRunner.manager.delete(ContractsSystems, {
+          admentmentId: id,
+        });
+      }
 
       await queryRunner.manager.delete(Admentment, {
         admentmentId: id,

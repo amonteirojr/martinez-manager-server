@@ -1,4 +1,7 @@
+import { Admentment } from 'src/modules/admentment/entities/admentment.entity';
 import { ContractsSystems } from 'src/modules/contracts-systems/entities/contracts-systems.entity';
+import { Responsible } from 'src/modules/responsible/entities/responsible.entity';
+import { SystemModule } from 'src/modules/system-module/entities/system-module.entity';
 import {
   Entity,
   Column,
@@ -20,6 +23,9 @@ export class ContractsSystemsModules extends BaseEntity {
 
   @Column()
   moduleId: number;
+
+  @Column()
+  admentmentId: number;
 
   @Column()
   deploymentDate?: string;
@@ -44,5 +50,13 @@ export class ContractsSystemsModules extends BaseEntity {
 
   @ManyToOne(() => ContractsSystems, (system) => system.modules)
   @JoinColumn({ name: 'contractSystemId' })
-  system?: ContractsSystems[];
+  system?: ContractsSystems;
+
+  @ManyToOne(() => SystemModule)
+  @JoinColumn({ name: 'moduleId' })
+  module?: SystemModule;
+
+  @ManyToOne(() => Responsible)
+  @JoinColumn({ name: 'responsibleId' })
+  responsible?: Responsible;
 }

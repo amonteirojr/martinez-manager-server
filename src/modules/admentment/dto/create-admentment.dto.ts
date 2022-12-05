@@ -4,15 +4,6 @@ import { SystemsDTO } from 'src/modules/contract/dto/create-or-update-contract.d
 
 export class CreateAdmentmentDTO {
   @ApiProperty({
-    description: 'ID do aditamento',
-    example: 1,
-    type: Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  admentmentId?: number;
-
-  @ApiProperty({
     description: 'ID do contrato',
     example: 1,
     type: Number,
@@ -32,8 +23,8 @@ export class CreateAdmentmentDTO {
     description: 'Quantidade de parcelas',
     type: Number,
   })
-  @IsNumber()
   @IsOptional()
+  @IsNumber()
   installments?: number;
 
   @ApiProperty({
