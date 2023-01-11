@@ -8,14 +8,17 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
+import { randomUUID } from 'crypto';
 import { Response } from 'express';
 import { Admentment } from '../admentment/entities/admentment.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ContractService } from './contract.service';
+import { ContractFiltersDTO } from './dto/contract-filters.dto';
 import { ContractInfoCountResponseDTO } from './dto/contract-info-count-response.dto';
 import { ContractTableResponseDTO } from './dto/contract-table-response.dto';
 import { CreateOrUpdateContractDTO } from './dto/create-or-update-contract.dto';
@@ -38,8 +41,13 @@ export class ContractController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   @ApiResponse({ type: Array<Contract> })
-  async getAllContracts(@Res() res: Response) {
-    const contract = await this.contractService.getContractsWithActualValues();
+  async getAllContracts(
+    @Res() res: Response,
+    @Query() filter: ContractFiltersDTO,
+  ) {
+    const contract = await this.contractService.getContractsWithActualValues(
+      filter,
+    );
     return res.send(contract);
   }
 
@@ -119,5 +127,18 @@ export class ContractController {
   async deleteById(@Res() res: Response, @Param('id') id: number) {
     await this.contractService.deleteContractById(id);
     return res.send();
+  }
+
+  @Get('/list/report')
+  @HttpCode(HttpStatus.OK)
+  async getContractList(
+    @Res() res: Response,
+    @Query('showItems') showItems?: boolean,
+  ) {
+    const file = await this.contractService.printContractList(showItems);
+    const filename = `${randomUUID()}.pdf`;
+    res.contentType('application/pdf');
+    res.setHeader('Filename', filename);
+    return res.send(file);
   }
 }

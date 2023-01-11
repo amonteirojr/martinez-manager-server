@@ -1,12 +1,13 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ConfigService } from './modules/config/config.service';
 import { CodedValidatorPipe } from './shared/coded-validation.pipe';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.useGlobalPipes(new CodedValidatorPipe());
   app.useGlobalPipes(
@@ -14,6 +15,9 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
+  app.enableCors({
+    exposedHeaders: 'Filename',
+  });
 
   const configService = app.get<ConfigService>(ConfigService);
   if (!configService.envConfig.isProduction) {

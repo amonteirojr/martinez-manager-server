@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Listagem de contratos</title>
+    <style>
+      hr {
+        background: #f2f2f2;
+        color: #f2f2f2;
+      }
+
+      table {
+        width: 100%;
+      }
+
+      thead {
+        text-align: left;
+        font-size: 14px;
+      }
+
+      thead tr th {
+        border-bottom: 1px solid #bbb;
+      }
+
+      tr:nth-child(even) {
+        background-color: #eee;
+      }
+
+      td {
+        padding-top: 18px;
+      }
+
+      .report-header {
+        display: flex;
+        padding: 24px 0;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .report-header .business-info {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+      }
+
+      .report-header .business-name {
+        font-size: 22px;
+        font-weight: 500;
+        margin: 0;
+      }
+
+      .report-header .address,
+      .report-header .phone {
+        font-size: 14px;
+        font-weight: 400;
+        margin: 0;
+      }
+
+      .report-title {
+        font-size: 24px;
+        font-weight: 700;
+      }
+
+      .wp-5 {
+        width: 5%;
+      }
+
+      .wp-10 {
+        width: 10%;
+      }
+
+      .wp-15 {
+        width: 15%;
+      }
+
+      .wp-20 {
+        width: 20%;
+      }
+
+      .wp-25 {
+        width: 25%;
+      }
+
+      .wp-30 {
+        width: 30%;
+      }
+
+      .wp-35 {
+        width: 35%;
+      }
+
+      .wp-40 {
+        width: 40%;
+      }
+
+      .wp-45 {
+        width: 45%;
+      }
+
+      .wp-50 {
+        width: 50%;
+      }
+
+      .wp-55 {
+        width: 55%;
+      }
+
+      .wp-60 {
+        width: 60%;
+      }
+
+      .wp-65 {
+        width: 65%;
+      }
+
+      .wp-70 {
+        width: 70%;
+      }
+
+      .wp-75 {
+        width: 75%;
+      }
+
+      .wp-80 {
+        width: 80%;
+      }
+
+      .wp-85 {
+        width: 85%;
+      }
+
+      .wp-90 {
+        width: 90%;
+      }
+
+      .wp-95 {
+        width: 95%;
+      }
+
+      .wp-100 {
+        width: 100%;
+      }
+
+      .pv-8 {
+        padding-top: 8px;
+        padding-bottom: 8px;
+      }
+
+      .mb-8 {
+        margin-bottom: 8px;
+      }
+
+      .bg-white {
+        background-color: #fff;
+      }
+
+      .bg-grey {
+        background-color: #ccc;
+      }
+
+      .no-padding {
+        padding: 0;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div style="margin-top: 180px;">
+      <div>
+        <h1 class="report-title">Listagem de clientes</h1>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th class="wp-20">Nome</th>
+            <th class="wp-10">CNPJ</th>
+            <th class="wp-10">Tipo</th>
+            <th class="wp-20">Cidade</th>
+            <th class="wp-10">Cliente desde</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (customers.length > 0) { %>
+            <% customers.forEach(customer => { %>
+              <tr style="margin-bottom: 8px; " >
+                <td><%=customer.customerName %></td>
+                <td><%=customer.document %></td>
+                <td><%=customer.customerType.name%></td>
+                <td><%=customer.cityName %>/<%= customer.city.state %> </td>
+                <td><%=customer.customerSince %></td>
+              </tr>
+            <% }) %> 
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

@@ -6,14 +6,21 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import AppDataSource from 'src/database/datasource';
 import { CodeErrors } from 'src/shared/code-errors.enum';
-import { Repository } from 'typeorm';
-import { AdmentmentsSystemsModules } from '../admentments-systems-modules/entities/admentments-systems-modules.entity';
+import { FindOptionsWhere, Raw, Repository } from 'typeorm';
 import { CreateAdmentmentDTO } from './dto/create-admentment.dto';
 import { Admentment } from './entities/admentment.entity';
 import { File } from '../file/entitites/file.entity';
 import { ContractsSystems } from '../contracts-systems/entities/contracts-systems.entity';
 import { ModulesDTO } from '../contract/dto/create-or-update-contract.dto';
 import { ContractsSystemsModules } from '../contracts-systems-modules/entities/contracts-systems-modules.entity';
+import { currencyFormatter } from 'src/shared/formatters';
+
+import { launch } from 'puppeteer';
+import { generateHtmlFromTemplate } from 'src/shared/report-functions';
+import { pdfOptions } from 'src/shared/pdfStructure';
+import { toLocalDate } from 'src/shared/localDateFormatter';
+import { AdmentmentFiltersDTO } from './dto/admentment-filters.dto';
+import { Contract } from '../contract/entitites/contract.entity';
 
 @Injectable()
 export class AdmentmentService {
@@ -281,9 +288,69 @@ export class AdmentmentService {
     }
   }
 
-  async getAll(): Promise<Admentment[]> {
+  async getAll(filters?: AdmentmentFiltersDTO): Promise<Admentment[]> {
     try {
+      let where: FindOptionsWhere<Admentment> = {};
+      let contract: FindOptionsWhere<Contract> = {};
+
+      if (filters.admentmentNumber && filters.admentmentNumber.length > 0) {
+        where = {
+          ...where,
+          admentmentNumber: filters.admentmentNumber,
+        };
+      }
+
+      if (filters.contractNumber && filters.contractNumber.length > 0) {
+        contract = {
+          contractNumber: filters.contractNumber,
+        };
+
+        where = {
+          ...where,
+          contract,
+        };
+      }
+
+      if (filters.contractYear && filters.contractYear.length > 0) {
+        contract = {
+          ...contract,
+          contractYear: filters.contractYear,
+        };
+
+        where = {
+          ...where,
+          contract,
+        };
+      }
+
+      if (filters.customer && parseInt(filters.customer) > 0) {
+        contract = {
+          ...contract,
+          customerId: parseInt(filters.customer),
+        };
+
+        where = {
+          ...where,
+          contract,
+        };
+      }
+
+      if (filters.finalDate) {
+        where = {
+          ...where,
+          finalDate: Raw((alias) => `${alias} <= '${filters.finalDate}'`),
+        };
+      }
+
+      if (filters.initialDate) {
+        where = {
+          ...where,
+          initialDate: Raw((alias) => `${alias} >= '${filters.initialDate}'`),
+        };
+      }
+
       return this.admentmentRepository.find({
+        where,
         relations: {
           contract: {
             customer: {
@@ -301,6 +368,93 @@ export class AdmentmentService {
       throw new InternalServerErrorException({
         code: CodeErrors.FAIL_TO_GET_ADMENTMENT,
         message: 'Failed to get admentments',
+      });
+    }
+  }
+
+  async getAdmentmentListReportData(): Promise<Array<object>> {
+    try {
+      const admentments = await this.admentmentRepository.find({
+        relations: {
+          admentmentType: true,
+          contract: true,
+          systems: {
+            system: true,
+            modules: {
+              module: true,
+            },
+          },
+        },
+        order: {
+          admentmentId: 'ASC',
+        },
+      });
+
+      const result = admentments.map((admentment) => {
+        const admentmentSystems = admentment.systems.map((system) => {
+          const systemModules = system.modules.map((mod) => ({
+            ...mod,
+            monthValue: currencyFormatter(mod.monthValue),
+            deploymentDate: toLocalDate(mod.deploymentDate),
+          }));
+
+          return {
+            ...system,
+            deploymentDate: toLocalDate(system.deploymentDate),
+            monthValue: currencyFormatter(system.monthValue),
+            modules: systemModules,
+          };
+        });
+
+        return {
+          ...admentment,
+          finalDate: toLocalDate(admentment.finalDate),
+          initialDate: toLocalDate(admentment.initialDate),
+          signatureDate: toLocalDate(admentment.signatureDate),
+          monthValue: currencyFormatter(admentment.monthValue),
+          systems: admentmentSystems,
+        };
+      });
+
+      return result;
+    } catch (err) {
+      this.logger.error(`Failed to get admentments. Cause: ${err}`);
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_GET_ADMENTMENT,
+        message: 'Failed to get admentments',
+      });
+    }
+  }
+
+  async printAdmentmentList(showItems: boolean): Promise<Buffer> {
+    try {
+      const browser = await launch({ headless: true });
+      const page = await browser.newPage();
+      const admentments = await this.getAdmentmentListReportData();
+
+      const html = await generateHtmlFromTemplate(
+        { admentments, showItems },
+        'admentment-list.ejs',
+      );
+
+      await page.setContent(html, { waitUntil: 'networkidle0' });
+
+      const pdf = await page.pdf({
+        ...pdfOptions(),
+        landscape: true,
+      });
+
+      await browser.close();
+
+      return pdf;
+    } catch (err) {
+      this.logger.error(
+        `Failed generate admentment list report. Cause: ${err}`,
+      );
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_GENERATE_HTML_FROM_EJS,
+        message: err.message,
       });
     }
   }

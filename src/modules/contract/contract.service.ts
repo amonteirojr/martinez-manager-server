@@ -18,14 +18,21 @@ import {
 } from './dto/create-or-update-contract.dto';
 import { UpdateContractResponseDTO } from './dto/update-contract-response.dto';
 import { Contract } from './entitites/contract.entity';
-import { format } from 'date-fns';
+import { format, sub } from 'date-fns';
 import { Admentment } from '../admentment/entities/admentment.entity';
 import { ContractResponseDTO } from './dto/contract-response.dto';
 import { AdmentmentService } from '../admentment/admentment.service';
 import { ContractDetailsResponseDTO } from './dto/contract-details-response.dto';
 import { File } from '../file/entitites/file.entity';
 import { ContractsSystems } from '../contracts-systems/entities/contracts-systems.entity';
-import { filter } from 'rxjs';
+import { ContractFiltersDTO } from './dto/contract-filters.dto';
+import { launch } from 'puppeteer';
+import { generateHtmlFromTemplate } from 'src/shared/report-functions';
+import { toLocalDate } from 'src/shared/localDateFormatter';
+import { currencyFormatter } from 'src/shared/formatters';
+import { imgToBase64 } from 'src/shared/converters';
+import { join } from 'path';
+import { pdfOptions } from 'src/shared/pdfStructure';
 
 @Injectable()
 export class ContractService {
@@ -39,13 +46,16 @@ export class ContractService {
 
   async getContractSummary(): Promise<ContractInfoCountResponseDTO> {
     try {
-      const [_, count] = await this.contractRepository.findAndCount();
+      const contracts = await this.getContractsWithActualValues();
+      const contractsToAmend = await this.filterContractsToAmend(contracts);
+      const expiredContracts = await this.filterExpiredContracts(contracts);
+      const contractsToBid = await this.filterContractsToBid(contracts);
 
       const response: ContractInfoCountResponseDTO = {
-        contractsCount: count,
-        contractsToAmend: 0,
-        contractsToBid: 0,
-        expiredContracts: 0,
+        contractsCount: contracts.length,
+        contractsToAmend: contractsToAmend.length,
+        contractsToBid: contractsToBid.length,
+        expiredContracts: expiredContracts.length,
       };
 
       return response;
@@ -57,6 +67,68 @@ export class ContractService {
         message: 'Failed to get contract summary',
       });
     }
+  }
+
+  async filterExpiredContracts(
+    actualContracts?: ContractResponseDTO[],
+  ): Promise<ContractResponseDTO[]> {
+    const today = new Date();
+    const contracts =
+      actualContracts || (await this.getContractsWithActualValues());
+
+    return contracts.filter((contract) => {
+      return new Date(contract.actualValidity).getTime() < today.getTime();
+    });
+  }
+
+  async filterContractsToAmend(
+    actualContracts?: ContractResponseDTO[],
+  ): Promise<ContractResponseDTO[]> {
+    const today = new Date();
+    const contracts =
+      actualContracts || (await this.getContractsWithActualValues());
+
+    return contracts.filter((contract) => {
+      const compareDate = sub(today, {
+        months: 12,
+      });
+
+      const isToAmend =
+        compareDate.getTime() >= new Date(contract.initialValidity).getTime();
+
+      if (isToAmend) {
+        const thirtyDaysSub = sub(new Date(contract.actualValidity), {
+          days: 30,
+        });
+
+        return thirtyDaysSub.getTime() <= today.getTime();
+      }
+    });
+  }
+
+  async filterContractsToBid(
+    actualContracts?: ContractResponseDTO[],
+  ): Promise<ContractResponseDTO[]> {
+    const today = new Date();
+    const contracts =
+      actualContracts || (await this.getContractsWithActualValues());
+
+    return contracts.filter((contract) => {
+      const compareDate = sub(today, {
+        months: 48,
+      });
+
+      const isToBid =
+        compareDate.getTime() >= new Date(contract.initialValidity).getTime();
+
+      if (isToBid) {
+        const ninetyDaysSUb = sub(new Date(contract.actualValidity), {
+          days: 90,
+        });
+
+        return ninetyDaysSUb.getTime() <= today.getTime();
+      }
+    });
   }
 
   async getContractAdmentments(contractId: number): Promise<Admentment[]> {
@@ -72,42 +144,102 @@ export class ContractService {
     }
   }
 
-  async getContractsWithActualValues(): Promise<ContractResponseDTO[]> {
-    const filterDate = format(new Date(), 'yyyy-MM-dd');
+  contractFiltersToWhereClause(
+    filters: ContractFiltersDTO,
+    filterDate: string,
+  ): string {
+    let whereClause = '';
+
+    if (filters?.contractNumber)
+      whereClause += ` AND "contracts"."contractNumber" = '${filters.contractNumber}'`;
+
+    if (filters?.contractYear)
+      whereClause += ` AND "contracts"."contractYear" = '${filters.contractYear}'`;
+
+    if (filters?.customer)
+      whereClause += ` AND "contracts"."customerId" = '${filters.customer}'`;
+
+    if (filters?.initialValidity)
+      whereClause += ` AND "contracts"."initialValidity" = '${filters.initialValidity}'`;
+
+    if (filters?.hasAdmentment === 'true')
+      whereClause += ` AND (EXISTS(SELECT 1 FROM "admentments" x 
+          WHERE x."contractId" = "contracts"."contractId"))`;
+
+    if (filters?.isExpired === 'true')
+      whereClause += ` AND coalesce((select 
+          max(x."finalDate") 
+        from admentments x 
+        where 
+          x."contractId" = contracts."contractId" 
+          and x."initialDate" <= '${filterDate}' 
+          and x."deletedAt" is null), contracts."finalValidity") < '${filterDate}'`;
+
+    if (filters?.finalValidity)
+      whereClause += ` AND coalesce((select 
+            max(x."finalDate") 
+            from admentments x 
+          where 
+            x."contractId" = contracts."contractId" 
+            and x."initialDate" <= '${filterDate}' 
+            and x."deletedAt" is null), contracts."finalValidity") <= '${filterDate}'`;
+
+    if (filters?.actualValue)
+      whereClause += ` AND "contracts"."monthValue" + coalesce((select
+            sum(x."monthValue")
+            from admentments x
+          where
+            x."contractId" = contracts."contractId"
+            and x."initialDate" <= '${filterDate}' 
+            and x."deletedAt" is null), 0) = ${filters.actualValue}`;
+
+    return whereClause;
+  }
+
+  async getContractsWithActualValues(
+    filters?: ContractFiltersDTO,
+  ): Promise<ContractResponseDTO[]> {
+    const filterDate =
+      filters?.finalValidity || format(new Date(), 'yyyy-MM-dd');
+
+    const whereClause = this.contractFiltersToWhereClause(filters, filterDate);
 
     try {
-      const result = await this.contractRepository.query(`SELECT DISTINCT
-                  contracts."monthValue" +
-                  coalesce((select
-                                sum(x."monthValue")
-                          from admentments x
-                          where
-                                x."contractId" = contracts."contractId"
-                                and x."initialDate" <= '${filterDate}' 
-                                and x."deletedAt" is null), 0)
-                  as "actualMonthValue",
-                contracts.installments as "initialInstallments",
-                  coalesce((select 
-                          max(x."finalDate") 
-                        from admentments x 
-                        where 
-                          x."contractId" = contracts."contractId" 
-                          and x."initialDate" <= '${filterDate}' 
-                          and x."deletedAt" is null), contracts."finalValidity") 
-                  as "actualValidity",
-                  "contracts"."monthValue" as "initialMonthValue",
-                  "contracts"."initialValidity",
-                  "contracts"."contractId",
-                  "contracts"."contractNumber", 
-                  "contracts"."contractYear",
-                  "customer"."customerName",
-                  "customerType"."name" as "customerType" 
-                FROM "contracts"
-                LEFT JOIN "admentments" "ad" ON ad."contractId" = contracts."contractId"  
-                INNER JOIN "customers" "customer" ON customer."customerId" = contracts."customerId"  
-                INNER JOIN "customer_types" "customerType" ON "customerType"."typeId" = customer."typeId" 
-                WHERE contracts."deletedAt" is null
-                ORDER BY "contracts"."contractId"`);
+      const sql = `SELECT DISTINCT
+              contracts."monthValue" +
+              coalesce((select
+                            sum(x."monthValue")
+                      from admentments x
+                      where
+                            x."contractId" = contracts."contractId"
+                            and x."initialDate" <= '${filterDate}' 
+                            and x."deletedAt" is null), 0)
+              as "actualMonthValue",
+            contracts.installments as "initialInstallments",
+              coalesce((select 
+                      max(x."finalDate") 
+                    from admentments x 
+                    where 
+                      x."contractId" = contracts."contractId" 
+                      and x."initialDate" <= '${filterDate}' 
+                      and x."deletedAt" is null), contracts."finalValidity") 
+              as "actualValidity",
+              "contracts"."monthValue" as "initialMonthValue",
+              "contracts"."initialValidity",
+              "contracts"."contractId",
+              "contracts"."contractNumber", 
+              "contracts"."contractYear",
+              "customer"."customerName",
+              "customerType"."name" as "customerType" 
+            FROM "contracts"
+            LEFT JOIN "admentments" "ad" ON ad."contractId" = contracts."contractId"  
+            INNER JOIN "customers" "customer" ON customer."customerId" = contracts."customerId"  
+            INNER JOIN "customer_types" "customerType" ON "customerType"."typeId" = customer."typeId" 
+            WHERE contracts."deletedAt" is null
+            ${whereClause}  
+            ORDER BY "contracts"."contractId"`;
+
+      const result = await this.contractRepository.query(sql);
 
       return result;
     } catch (err) {
@@ -538,6 +670,167 @@ export class ContractService {
       });
     } finally {
       await queryRunner.release();
+    }
+  }
+
+  async getContractListReportData(): Promise<
+    {
+      contract: any;
+      actualMonthValue: string;
+      finalDate: string;
+    }[]
+  > {
+    const today = new Date();
+    const filterDate = format(today, 'yyyy-MM-dd');
+
+    try {
+      const contracts = await this.contractRepository.find({
+        order: {
+          contractId: 'ASC',
+          systems: {
+            modules: {
+              id: 'ASC',
+            },
+          },
+        },
+        relations: {
+          biddingModality: true,
+          customer: {
+            city: true,
+            customerType: true,
+          },
+          files: true,
+          law: true,
+          paymentMode: true,
+          responsible: true,
+          systems: {
+            responsible: true,
+            modules: {
+              module: true,
+              responsible: true,
+            },
+            system: true,
+          },
+          admentments: {
+            files: true,
+            admentmentType: true,
+            systems: {
+              responsible: true,
+              modules: {
+                module: true,
+                responsible: true,
+              },
+              system: true,
+            },
+          },
+        },
+      });
+
+      if (!contracts || contracts.length === 0) {
+        throw new NotFoundException({
+          code: CodeErrors.CONTRACT_NOT_FOUND,
+          message: 'Resource not found',
+        });
+      }
+
+      const actualValues = await this.contractRepository.query(`SELECT DISTINCT
+                  contracts."monthValue" +
+                  coalesce((select
+                                sum(x."monthValue")
+                          from admentments x
+                          where
+                                x."contractId" = contracts."contractId"
+                                and x."deletedAt" is null
+                                and x."initialDate" <= '${filterDate}'), 0)
+                  as "actualMonthValue",
+                  contracts.installments,
+                  contracts."contractId",
+                  coalesce((select 
+                          max(x."finalDate") 
+                        from admentments x 
+                        where 
+                          x."contractId" = contracts."contractId" 
+                          and x."deletedAt" is null
+                          and x."initialDate" <= '${filterDate}' ), contracts."finalValidity") 
+                  as "actualValidity"
+                FROM "contracts"
+                LEFT JOIN "admentments" "ad" ON ad."contractId" = contracts."contractId"  
+                WHERE coalesce(ad."initialDate", contracts."initialValidity") <= '${filterDate}'
+                AND contracts."deletedAt" is null`);
+
+      const response = contracts.map((cont) => {
+        const val = actualValues.find(
+          (actual) => actual.contractId === cont.contractId,
+        );
+
+        const contractSystems = cont.systems.map((system) => {
+          const modules = system.modules.map((mod) => ({
+            ...mod,
+            deploymentDate: toLocalDate(mod.deploymentDate),
+            monthValue: currencyFormatter(mod.monthValue),
+          }));
+
+          return {
+            ...system,
+            modules,
+            deploymentDate: toLocalDate(system.deploymentDate),
+            monthValue: currencyFormatter(system.monthValue),
+          };
+        });
+
+        return {
+          contract: {
+            ...cont,
+            initialValidity: toLocalDate(cont.initialValidity),
+            finalValidity: toLocalDate(cont.finalValidity),
+            signatureDate: toLocalDate(cont.signatureDate),
+            monthValue: currencyFormatter(cont.monthValue),
+            systems: contractSystems,
+          },
+          actualMonthValue: currencyFormatter(
+            val?.actualMonthValue || cont.monthValue,
+          ),
+          finalDate: toLocalDate(val?.actualValidity || cont.finalValidity),
+        };
+      });
+
+      return response;
+    } catch (err) {
+      this.logger.error(`Failed to get all contracts. Cause: ${err}`);
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_GET_CONTRACTS,
+        message: 'Failed to get all contracts',
+      });
+    }
+  }
+
+  async printContractList(showItems: boolean): Promise<Buffer> {
+    try {
+      const browser = await launch({ headless: true });
+      const page = await browser.newPage();
+      const contracts = await this.getContractListReportData();
+      const html = await generateHtmlFromTemplate(
+        { contracts, showItems },
+        'contract-list.ejs',
+      );
+
+      await page.setContent(html, { waitUntil: 'networkidle0' });
+
+      const pdf = await page.pdf({
+        ...pdfOptions(),
+        landscape: true,
+      });
+
+      await browser.close();
+
+      return pdf;
+    } catch (err) {
+      this.logger.error(`Failed generate  contract list report. Cause: ${err}`);
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_GENERATE_HTML_FROM_EJS,
+        message: err.message,
+      });
     }
   }
 }

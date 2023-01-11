@@ -14,5 +14,6 @@ import { AdmentmentModule } from '../admentment/admentment.module';
   ],
   controllers: [ContractController],
   providers: [ContractService],
+  exports: [ContractService],
 })
 export class ContractModule {}

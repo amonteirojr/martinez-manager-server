@@ -5,6 +5,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CodeErrors } from 'src/shared/code-errors.enum';
+import { CNPJFormatter, formatDateToLocaleString } from 'src/shared/formatters';
+
 import { Repository } from 'typeorm';
 import { CityService } from '../city/city.service';
 import { City } from '../city/entities/city.entity';
@@ -12,6 +14,12 @@ import { City } from '../city/entities/city.entity';
 import { CreateCustomerDTO } from './dto/create-customer.dto';
 import { CustomerResponseDTO } from './dto/customer-response.dto';
 import { Customer } from './entities/customer.entity';
+import * as PDFPrinter from 'pdfmake';
+import { pdfMakeFonts } from 'src/shared/pdfMakeFonts';
+import { launch } from 'puppeteer';
+import { generateHtmlFromTemplate } from 'src/shared/report-functions';
+import { pdfOptions } from 'src/shared/pdfStructure';
+import { toLocalDate } from 'src/shared/localDateFormatter';
 
 @Injectable()
 export class CustomerService {
@@ -138,6 +146,41 @@ export class CustomerService {
     }
   }
 
+  async getAllCustomersWithContract(): Promise<CustomerResponseDTO[]> {
+    try {
+      const customers = await this.customerRepository.find({
+        relations: { customerType: true, city: true, contracts: true },
+        where: {
+          contracts: {},
+        },
+        order: {
+          customerId: 'ASC',
+        },
+      });
+
+      const response = customers.map(
+        (customer) =>
+          ({
+            ...customer,
+            typeName: customer.customerType.name,
+            cityPopulation: customer.city.cityPopulation,
+            cityName: customer.city.cityName,
+          } as CustomerResponseDTO),
+      );
+
+      return response;
+    } catch (err) {
+      this.logger.error(
+        `Failed to get customers with contracts. Cause: ${err}`,
+      );
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_GET_CUSTOMER,
+        message: `Failed to customers`,
+      });
+    }
+  }
+
   async getCustomer(customerId: number): Promise<CustomerResponseDTO> {
     try {
       const customer = await this.customerRepository.findOne({
@@ -160,6 +203,41 @@ export class CustomerService {
       throw new InternalServerErrorException({
         code: CodeErrors.FAIL_TO_GET_CUSTOMER,
         message: `Failed to customer`,
+      });
+    }
+  }
+
+  async printCustomerList(): Promise<Buffer> {
+    try {
+      const browser = await launch({ headless: true });
+      const page = await browser.newPage();
+      const customers = await this.getAllCustomers();
+
+      const reportData = customers.map((customer) => ({
+        ...customer,
+        customerSince: toLocalDate(customer.customerSince),
+        document: CNPJFormatter(customer.document),
+      }));
+
+      const html = await generateHtmlFromTemplate(
+        { customers: reportData },
+        'customer-list.ejs',
+      );
+
+      await page.setContent(html, { waitUntil: 'networkidle0' });
+
+      const pdf = await page.pdf({
+        ...pdfOptions(),
+      });
+
+      await browser.close();
+
+      return pdf;
+    } catch (err) {
+      this.logger.error(`Failed generate Customer list report. Cause: ${err}`);
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_GENERATE_HTML_FROM_EJS,
+        message: err.message,
       });
     }
   }

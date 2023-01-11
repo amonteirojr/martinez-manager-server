@@ -8,13 +8,16 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
+import { randomUUID } from 'crypto';
 import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdmentmentService } from './admentment.service';
+import { AdmentmentFiltersDTO } from './dto/admentment-filters.dto';
 import { CreateAdmentmentDTO } from './dto/create-admentment.dto';
 import { Admentment } from './entities/admentment.entity';
 
@@ -50,8 +53,8 @@ export class AdmentmentController {
   @Get()
   @UseGuards(JwtAuthGuard)
   @ApiResponse({ type: Array<Admentment> })
-  async get(@Res() res: Response) {
-    const admentments = await this.admentmentService.getAll();
+  async get(@Res() res: Response, @Query() filter: AdmentmentFiltersDTO) {
+    const admentments = await this.admentmentService.getAll(filter);
     return res.send(admentments);
   }
 
@@ -70,5 +73,18 @@ export class AdmentmentController {
   async deleteById(@Res() res: Response, @Param('id') id: number) {
     await this.admentmentService.deleteById(id);
     return res.send();
+  }
+
+  @Get('/list/report')
+  @HttpCode(HttpStatus.OK)
+  async getAdmentmentList(
+    @Res() res: Response,
+    @Query('showItems') showItems?: boolean,
+  ) {
+    const file = await this.admentmentService.printAdmentmentList(showItems);
+    const filename = `${randomUUID()}.pdf`;
+    res.contentType('application/pdf');
+    res.setHeader('Filename', filename);
+    return res.send(file);
   }
 }
