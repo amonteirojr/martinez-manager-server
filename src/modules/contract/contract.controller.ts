@@ -133,9 +133,9 @@ export class ContractController {
   @HttpCode(HttpStatus.OK)
   async getContractList(
     @Res() res: Response,
-    @Query('showItems') showItems?: boolean,
+    @Query() filters?: ContractFiltersDTO,
   ) {
-    const file = await this.contractService.printContractList(showItems);
+    const file = await this.contractService.printContractList(filters);
     const filename = `${randomUUID()}.pdf`;
     res.contentType('application/pdf');
     res.setHeader('Filename', filename);

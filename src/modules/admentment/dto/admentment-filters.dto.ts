@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class AdmentmentFiltersDTO {
   @IsOptional()
@@ -24,4 +24,8 @@ export class AdmentmentFiltersDTO {
   @IsOptional()
   @IsString()
   finalDate?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  showItems?: string;
 }

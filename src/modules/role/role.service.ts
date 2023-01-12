@@ -55,4 +55,17 @@ export class RoleService {
       });
     }
   }
+
+  async getAll(): Promise<Role[]> {
+    try {
+      return await this.roleRepository.find();
+    } catch (err) {
+      this.logger.error(`Failed to find roles. Cause: ${err}`);
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_FIND_ROLE,
+        message: 'Failed to find the roles',
+      });
+    }
+  }
 }

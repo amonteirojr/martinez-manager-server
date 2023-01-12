@@ -16,6 +16,7 @@ import { RoleService } from '../role/role.service';
 import { ResetPasswordDTO } from './dto/reset-password.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ResetTokenType } from 'src/types';
+import { UpdateUserDTO } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -30,26 +31,15 @@ export class UserService {
 
   async createUser(createUserDTO: CreateUserDTO): Promise<User> {
     try {
-      const role = await this.roleService.findRoleByName(createUserDTO.role);
-
-      if (!role)
-        throw new BadRequestException({
-          code: CodeErrors.FAIL_TO_FIND_ROLE,
-          message: 'Role is invalid or doesnt exist',
-        });
-
       const userDto = {
-        role,
-        email: createUserDTO.email,
+        ...createUserDTO,
         password: bcrypt.hashSync(createUserDTO.password, 8),
-        firstname: createUserDTO.firstname,
-        lastname: createUserDTO.lastname,
+        roleId: parseInt(createUserDTO.roleId),
       };
 
-      const createdUser = this.userRepository.create(userDto);
-
-      const { userId, firstname, lastname, email } =
-        await this.userRepository.save(createdUser);
+      const { userId, firstname, lastname, email } = await this.userRepository
+        .create(userDto)
+        .save();
 
       return { userId, firstname, lastname, email } as User;
     } catch (err) {
@@ -200,6 +190,27 @@ export class UserService {
       throw new InternalServerErrorException({
         code: CodeErrors.FAIL_TO_FIND_USERS,
         message: 'Failed to find users',
+      });
+    }
+  }
+
+  async updateUserById(userId: number, data: UpdateUserDTO): Promise<void> {
+    try {
+      const password = bcrypt.hashSync(data.password, 8);
+      await this.userRepository.update(
+        { userId },
+        { ...data, roleId: parseInt(data.roleId), password },
+      );
+
+      return;
+    } catch (err) {
+      this.logger.error(
+        `Failed to update user ${data.firstname}. Cause: ${err}`,
+      );
+
+      throw new InternalServerErrorException({
+        code: err.code || CodeErrors.FAIL_TO_CREATE_USER,
+        message: err.message || `Failed to update user`,
       });
     }
   }

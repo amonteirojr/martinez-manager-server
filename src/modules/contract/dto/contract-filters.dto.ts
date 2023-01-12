@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class ContractFiltersDTO {
   @IsOptional()
@@ -32,4 +32,8 @@ export class ContractFiltersDTO {
   @IsOptional()
   @IsString()
   isExpired?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  showItems?: boolean;
 }

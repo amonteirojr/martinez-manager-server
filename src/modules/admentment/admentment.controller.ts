@@ -79,9 +79,9 @@ export class AdmentmentController {
   @HttpCode(HttpStatus.OK)
   async getAdmentmentList(
     @Res() res: Response,
-    @Query('showItems') showItems?: boolean,
+    @Query() filters?: AdmentmentFiltersDTO,
   ) {
-    const file = await this.admentmentService.printAdmentmentList(showItems);
+    const file = await this.admentmentService.printAdmentmentList(filters);
     const filename = `${randomUUID()}.pdf`;
     res.contentType('application/pdf');
     res.setHeader('Filename', filename);

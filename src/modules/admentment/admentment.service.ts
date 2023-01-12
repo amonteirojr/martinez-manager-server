@@ -352,9 +352,12 @@ export class AdmentmentService {
       return this.admentmentRepository.find({
         where,
         relations: {
-          contract: {
-            customer: {
-              customerType: true,
+          admentmentType: true,
+          contract: true,
+          systems: {
+            system: true,
+            modules: {
+              module: true,
             },
           },
         },
@@ -372,23 +375,11 @@ export class AdmentmentService {
     }
   }
 
-  async getAdmentmentListReportData(): Promise<Array<object>> {
+  async getAdmentmentListReportData(
+    filters?: AdmentmentFiltersDTO,
+  ): Promise<Array<object>> {
     try {
-      const admentments = await this.admentmentRepository.find({
-        relations: {
-          admentmentType: true,
-          contract: true,
-          systems: {
-            system: true,
-            modules: {
-              module: true,
-            },
-          },
-        },
-        order: {
-          admentmentId: 'ASC',
-        },
-      });
+      const admentments = await this.getAll(filters);
 
       const result = admentments.map((admentment) => {
         const admentmentSystems = admentment.systems.map((system) => {
@@ -427,14 +418,14 @@ export class AdmentmentService {
     }
   }
 
-  async printAdmentmentList(showItems: boolean): Promise<Buffer> {
+  async printAdmentmentList(filters?: AdmentmentFiltersDTO): Promise<Buffer> {
     try {
       const browser = await launch({ headless: true });
       const page = await browser.newPage();
       const admentments = await this.getAdmentmentListReportData();
 
       const html = await generateHtmlFromTemplate(
-        { admentments, showItems },
+        { admentments, showItems: filters.showItems || false },
         'admentment-list.ejs',
       );
 

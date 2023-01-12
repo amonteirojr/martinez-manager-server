@@ -17,6 +17,7 @@ import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CustomerService } from './customer.service';
 import { CreateCustomerDTO } from './dto/create-customer.dto';
+import { CustomerFiltersDTO } from './dto/customer-filters.dto';
 import { Customer } from './entities/customer.entity';
 
 @Controller('customer')
@@ -49,9 +50,11 @@ export class CustomerController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  async getCustomerList(@Res() res: Response) {
-    const result = await this.customerService.getAllCustomers();
-
+  async getCustomerList(
+    @Res() res: Response,
+    @Query() filters: CustomerFiltersDTO,
+  ) {
+    const result = await this.customerService.getAllCustomers(filters);
     return res.send(result);
   }
 
@@ -64,8 +67,11 @@ export class CustomerController {
 
   @Get('/list/report')
   @HttpCode(HttpStatus.OK)
-  async getCustomerListReport(@Res() res: Response) {
-    const file = await this.customerService.printCustomerList();
+  async getCustomerListReport(
+    @Res() res: Response,
+    @Query() filters?: CustomerFiltersDTO,
+  ) {
+    const file = await this.customerService.printCustomerList(filters);
     const filename = `${randomUUID()}.pdf`;
     res.contentType('application/pdf');
     res.setHeader('Filename', filename);

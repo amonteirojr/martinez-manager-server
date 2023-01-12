@@ -27,6 +27,9 @@ export class User extends BaseEntity {
   @Column({ length: 50 })
   lastname?: string;
 
+  @Column()
+  roleId?: number;
+
   @Column('bool', { default: true })
   active: boolean;
 

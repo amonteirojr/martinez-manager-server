@@ -8,7 +8,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import AppDataSource from 'src/database/datasource';
 import { CodeErrors } from 'src/shared/code-errors.enum';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Raw, Repository } from 'typeorm';
 import { ContractsSystemsModules } from '../contracts-systems-modules/entities/contracts-systems-modules.entity';
 import { ContractInfoCountResponseDTO } from './dto/contract-info-count-response.dto';
 import { ContractTableResponseDTO } from './dto/contract-table-response.dto';
@@ -33,6 +33,7 @@ import { currencyFormatter } from 'src/shared/formatters';
 import { imgToBase64 } from 'src/shared/converters';
 import { join } from 'path';
 import { pdfOptions } from 'src/shared/pdfStructure';
+import { filter } from 'rxjs';
 
 @Injectable()
 export class ContractService {
@@ -673,7 +674,7 @@ export class ContractService {
     }
   }
 
-  async getContractListReportData(): Promise<
+  async getContractListReportData(filters?: ContractFiltersDTO): Promise<
     {
       contract: any;
       actualMonthValue: string;
@@ -681,10 +682,37 @@ export class ContractService {
     }[]
   > {
     const today = new Date();
-    const filterDate = format(today, 'yyyy-MM-dd');
+    const filterDate = filters.finalValidity || format(today, 'yyyy-MM-dd');
+
+    let where: FindOptionsWhere<Contract>;
+    where = {
+      contractNumber: Raw(
+        (alias) =>
+          `${alias} = '${filters.contractNumber}' OR ${alias} IS NOT NULL`,
+      ),
+      contractYear: Raw(
+        (alias) =>
+          `${alias} = '${filters.contractYear}' OR ${alias} IS NOT NULL`,
+      ),
+      customerId: Raw(
+        (alias) => `${alias} = ${filters.customer} OR ${alias} IS NOT NULL`,
+      ),
+      initialValidity: Raw(
+        (alias) =>
+          `${alias} = '${filters.initialValidity}' OR ${alias} IS NOT NULL`,
+      ),
+    };
+
+    if (filters.hasAdmentment === 'true') {
+      where = {
+        ...where,
+        admentments: true,
+      };
+    }
 
     try {
       const contracts = await this.contractRepository.find({
+        where,
         order: {
           contractId: 'ASC',
           systems: {
@@ -756,6 +784,10 @@ export class ContractService {
                 FROM "contracts"
                 LEFT JOIN "admentments" "ad" ON ad."contractId" = contracts."contractId"  
                 WHERE coalesce(ad."initialDate", contracts."initialValidity") <= '${filterDate}'
+                AND "contracts"."contractNumber" = '${filters.contractNumber}' 
+                    OR "contracts"."contractNumber" IS NOT NULL
+                AND "contracts"."contractYear" = '${filters.contractYear}' 
+                    OR "contracts"."contractYear" IS NOT NULL
                 AND contracts."deletedAt" is null`);
 
       const response = contracts.map((cont) => {
@@ -794,7 +826,14 @@ export class ContractService {
         };
       });
 
-      return response;
+      const result =
+        filters.isExpired === 'true'
+          ? response.filter(
+              (f) => new Date(f.finalDate).getTime() < today.getTime(),
+            )
+          : response;
+
+      return result;
     } catch (err) {
       this.logger.error(`Failed to get all contracts. Cause: ${err}`);
 
@@ -805,13 +844,13 @@ export class ContractService {
     }
   }
 
-  async printContractList(showItems: boolean): Promise<Buffer> {
+  async printContractList(filters?: ContractFiltersDTO): Promise<Buffer> {
     try {
       const browser = await launch({ headless: true });
       const page = await browser.newPage();
-      const contracts = await this.getContractListReportData();
+      const contracts = await this.getContractListReportData(filters);
       const html = await generateHtmlFromTemplate(
-        { contracts, showItems },
+        { contracts, showItems: filters?.showItems || false },
         'contract-list.ejs',
       );
 

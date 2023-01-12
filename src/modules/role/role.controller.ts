@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -25,5 +26,14 @@ export class RoleController {
   async createRole(@Res() res: Response, @Body() createRoleDTO: CreateRoleDTO) {
     const role = await this.roleService.createRole(createRoleDTO);
     return res.send(role);
+  }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiCreatedResponse({ type: Role })
+  async getAllRoles(@Res() res: Response) {
+    const roles = await this.roleService.getAll();
+    return res.send(roles);
   }
 }

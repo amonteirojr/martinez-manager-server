@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CodeErrors } from 'src/shared/code-errors.enum';
 import { CNPJFormatter, formatDateToLocaleString } from 'src/shared/formatters';
 
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Raw, Repository } from 'typeorm';
 import { CityService } from '../city/city.service';
 import { City } from '../city/entities/city.entity';
 
@@ -20,6 +20,7 @@ import { launch } from 'puppeteer';
 import { generateHtmlFromTemplate } from 'src/shared/report-functions';
 import { pdfOptions } from 'src/shared/pdfStructure';
 import { toLocalDate } from 'src/shared/localDateFormatter';
+import { CustomerFiltersDTO } from './dto/customer-filters.dto';
 
 @Injectable()
 export class CustomerService {
@@ -116,9 +117,49 @@ export class CustomerService {
     }
   }
 
-  async getAllCustomers(): Promise<CustomerResponseDTO[]> {
+  async getAllCustomers(
+    filters?: CustomerFiltersDTO,
+  ): Promise<CustomerResponseDTO[]> {
     try {
+      let where: FindOptionsWhere<Customer>;
+
+      if (filters.customerName && filters.customerName.length > 0) {
+        where = {
+          ...where,
+          customerName: filters.customerName,
+        };
+      }
+
+      if (filters.document && filters.document.length > 0) {
+        where = {
+          ...where,
+          document: filters.document,
+        };
+      }
+
+      if (filters.typeId && filters.typeId.length > 0) {
+        where = {
+          ...where,
+          typeId: parseInt(filters.typeId),
+        };
+      }
+
+      if (filters.cityId && filters.cityId.length > 0) {
+        where = {
+          ...where,
+          cityId: parseInt(filters.cityId),
+        };
+      }
+
+      if (filters && filters.hasContract) {
+        where = {
+          ...where,
+          contracts: true,
+        };
+      }
+
       const customers = await this.customerRepository.find({
+        where,
         relations: { customerType: true, city: true },
         order: {
           customerId: 'ASC',
@@ -207,11 +248,11 @@ export class CustomerService {
     }
   }
 
-  async printCustomerList(): Promise<Buffer> {
+  async printCustomerList(filters?: CustomerFiltersDTO): Promise<Buffer> {
     try {
       const browser = await launch({ headless: true });
       const page = await browser.newPage();
-      const customers = await this.getAllCustomers();
+      const customers = await this.getAllCustomers(filters);
 
       const reportData = customers.map((customer) => ({
         ...customer,

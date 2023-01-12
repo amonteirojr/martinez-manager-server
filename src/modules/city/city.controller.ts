@@ -40,4 +40,11 @@ export class CityController {
     const city = await this.cityService.getCityPopulation(ibgeId);
     return res.send(city);
   }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  async getCities(@Res() res: Response) {
+    const cities = await this.cityService.getCities();
+    return res.send(cities);
+  }
 }

@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -17,6 +18,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 import { CreateUserDTO } from './dto/create-user.dto';
 import { ResetPasswordDTO } from './dto/reset-password.dto';
+import { UpdateUserDTO } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
 
@@ -59,5 +61,18 @@ export class UserController {
   async getAllUsers(@Res() res: Response) {
     const users = await this.userService.getAllUsers();
     return res.send(users);
+  }
+
+  @Put('/:id')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ type: Array<User> })
+  async updateUserById(
+    @Res() res: Response,
+    @Param('id') userId: number,
+    @Body() updateUserDTO: UpdateUserDTO,
+  ) {
+    await this.userService.updateUserById(userId, updateUserDTO);
+    return res.status(HttpStatus.NO_CONTENT).send();
   }
 }

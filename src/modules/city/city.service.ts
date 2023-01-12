@@ -141,4 +141,17 @@ export class CityService {
       });
     }
   }
+
+  async getCities(): Promise<City[]> {
+    try {
+      return await this.cityRepository.find();
+    } catch (err) {
+      this.logger.error(`Failed to get all cities. Cause: ${err}`);
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_GET_CITIES,
+        message: `Failed to get cities`,
+      });
+    }
+  }
 }
