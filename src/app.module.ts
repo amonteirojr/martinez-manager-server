@@ -28,6 +28,7 @@ import { BiddingModalityModule } from './modules/bidding-modality/bidding-modali
 import { LawModule } from './modules/law/law.module';
 import { LawArticleModule } from './modules/law-article/law-article.module';
 import { ResponsibleModule } from './modules/responsible/responsible.module';
+import { InvoiceModule } from './modules/invoice/invoice.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { ResponsibleModule } from './modules/responsible/responsible.module';
     LawArticleModule,
     ContractsSystemsModule,
     ResponsibleModule,
+    InvoiceModule,
   ],
   controllers: [AppController],
 })

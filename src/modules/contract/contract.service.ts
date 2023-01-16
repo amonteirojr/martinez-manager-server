@@ -685,23 +685,37 @@ export class ContractService {
     const filterDate = filters.finalValidity || format(today, 'yyyy-MM-dd');
 
     let where: FindOptionsWhere<Contract>;
-    where = {
-      contractNumber: Raw(
-        (alias) =>
-          `${alias} = '${filters.contractNumber}' OR ${alias} IS NOT NULL`,
-      ),
-      contractYear: Raw(
-        (alias) =>
-          `${alias} = '${filters.contractYear}' OR ${alias} IS NOT NULL`,
-      ),
-      customerId: Raw(
-        (alias) => `${alias} = ${filters.customer} OR ${alias} IS NOT NULL`,
-      ),
-      initialValidity: Raw(
-        (alias) =>
-          `${alias} = '${filters.initialValidity}' OR ${alias} IS NOT NULL`,
-      ),
-    };
+
+    if (filters.contractNumber) {
+      where = {
+        ...where,
+        contractNumber: filters.contractNumber,
+      };
+    }
+
+    if (filters.contractYear) {
+      where = {
+        ...where,
+        contractYear: filters.contractYear,
+      };
+    }
+
+    if (filters.customer) {
+      where = {
+        ...where,
+        customerId: parseInt(filters.customer, 10),
+      };
+    }
+
+    if (filters.initialValidity) {
+      where = {
+        ...where,
+        initialValidity: Raw(
+          () =>
+            `"Contract"."initialValidity"::date = '${filters.initialValidity}'`,
+        ),
+      };
+    }
 
     if (filters.hasAdmentment === 'true') {
       where = {

@@ -20,6 +20,7 @@ import { BiddingModality } from 'src/modules/bidding-modality/entities/bidding-m
 import { Law } from 'src/modules/law/entities/law.entity';
 import { ContractsSystems } from 'src/modules/contracts-systems/entities/contracts-systems.entity';
 import { Responsible } from 'src/modules/responsible/entities/responsible.entity';
+import { Invoice } from 'src/modules/invoice/entities/invoice.entity';
 
 @Entity({ name: 'contracts' })
 export class Contract extends BaseEntity {
@@ -129,4 +130,8 @@ export class Contract extends BaseEntity {
     inverseJoinColumn: { name: 'id' },
   })
   systems?: ContractsSystems[];
+
+  @OneToMany(() => Invoice, (invoice) => invoice.contract)
+  @JoinColumn({ name: 'contractId' })
+  invoices?: Invoice[];
 }

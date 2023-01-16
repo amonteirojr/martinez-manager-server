@@ -34,6 +34,6 @@ export class ContractFiltersDTO {
   isExpired?: string;
 
   @IsOptional()
-  @IsBoolean()
-  showItems?: boolean;
+  @IsString()
+  showItems?: string;
 }

@@ -293,14 +293,14 @@ export class AdmentmentService {
       let where: FindOptionsWhere<Admentment> = {};
       let contract: FindOptionsWhere<Contract> = {};
 
-      if (filters.admentmentNumber && filters.admentmentNumber.length > 0) {
+      if (filters?.admentmentNumber && filters?.admentmentNumber.length > 0) {
         where = {
           ...where,
           admentmentNumber: filters.admentmentNumber,
         };
       }
 
-      if (filters.contractNumber && filters.contractNumber.length > 0) {
+      if (filters?.contractNumber && filters?.contractNumber.length > 0) {
         contract = {
           contractNumber: filters.contractNumber,
         };
@@ -311,7 +311,7 @@ export class AdmentmentService {
         };
       }
 
-      if (filters.contractYear && filters.contractYear.length > 0) {
+      if (filters?.contractYear && filters?.contractYear.length > 0) {
         contract = {
           ...contract,
           contractYear: filters.contractYear,
@@ -323,7 +323,7 @@ export class AdmentmentService {
         };
       }
 
-      if (filters.customer && parseInt(filters.customer) > 0) {
+      if (filters?.customer && parseInt(filters?.customer) > 0) {
         contract = {
           ...contract,
           customerId: parseInt(filters.customer),
@@ -335,14 +335,14 @@ export class AdmentmentService {
         };
       }
 
-      if (filters.finalDate) {
+      if (filters?.finalDate) {
         where = {
           ...where,
           finalDate: Raw((alias) => `${alias} <= '${filters.finalDate}'`),
         };
       }
 
-      if (filters.initialDate) {
+      if (filters?.initialDate) {
         where = {
           ...where,
           initialDate: Raw((alias) => `${alias} >= '${filters.initialDate}'`),
@@ -422,7 +422,7 @@ export class AdmentmentService {
     try {
       const browser = await launch({ headless: true });
       const page = await browser.newPage();
-      const admentments = await this.getAdmentmentListReportData();
+      const admentments = await this.getAdmentmentListReportData(filters);
 
       const html = await generateHtmlFromTemplate(
         { admentments, showItems: filters.showItems || false },

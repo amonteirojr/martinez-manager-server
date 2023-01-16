@@ -26,6 +26,6 @@ export class AdmentmentFiltersDTO {
   finalDate?: string;
 
   @IsOptional()
-  @IsBoolean()
+  @IsString()
   showItems?: string;
 }

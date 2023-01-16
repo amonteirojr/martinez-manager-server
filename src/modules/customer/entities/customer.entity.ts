@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 import { City } from '../../../modules/city/entities/city.entity';
 import { Contract } from '../../../modules/contract/entitites/contract.entity';
+import { Invoice } from 'src/modules/invoice/entities/invoice.entity';
 
 @Entity({ name: 'customers' })
 export class Customer extends BaseEntity {
