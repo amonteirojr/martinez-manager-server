@@ -17,6 +17,7 @@ import {
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { diskStorage } from 'multer';
+import { join } from 'path';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 import { FileService } from './file.service';
@@ -61,5 +62,13 @@ export class FileController {
   @Get('/:imgpath')
   seeUploadedFile(@Param('imgpath') image: string, @Res() res: Response) {
     return res.sendFile(image, { root: './upload/files' });
+  }
+
+  @Get('/reports/:reportPath')
+  getReport(@Param('reportPath') report: string, @Res() res: Response) {
+    const root = './downloads/files';
+    console.log(root);
+
+    return res.sendFile(report, { root });
   }
 }

@@ -20,7 +20,6 @@ export class AlterTableInvoicesAlterColumns1673837392561
         type: 'enum',
         enum: Object.keys(InvoiceStatusEnum),
         isNullable: true,
-        default: InvoiceStatusEnum.OPENED,
       }),
     );
   }

@@ -2,7 +2,7 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class PopulateRolesTable1658979591363 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    const { identifiers } = await queryRunner.manager
+    const { generatedMaps } = await queryRunner.manager
       .createQueryBuilder()
       .insert()
       .into('roles')
@@ -17,7 +17,6 @@ export class PopulateRolesTable1658979591363 implements MigrationInterface {
       .insert()
       .into('users')
       .values({
-        role: identifiers[0].roleId,
         email: 'amonteirojr@gmail.com',
         password:
           '$2b$08$8ijpE2W9La1SvP2NjlC/2.L6c40KoECHPCcDg7Or7zwbRToBNrqj.',

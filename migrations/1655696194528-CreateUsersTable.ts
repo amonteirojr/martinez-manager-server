@@ -49,6 +49,7 @@ export class CreateUsersTable1655696194528 implements MigrationInterface {
           {
             name: 'roleId',
             type: 'integer',
+            isNullable: true,
           },
           {
             type: 'timestamp',
