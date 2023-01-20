@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -13,7 +14,7 @@ import { ApiCreatedResponse, ApiResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CityService } from './city.service';
-import { CityPopulationResponseDTO } from './dto/city-population-response.dto';
+import { CityPopulationResponseDTO } from './dto/city-population-response.dto copy';
 import { CreateCityDTO } from './dto/create-city.dto';
 import { City } from './entities/city.entity';
 

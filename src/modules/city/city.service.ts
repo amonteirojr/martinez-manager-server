@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
@@ -10,7 +9,7 @@ import { CodeErrors } from 'src/shared/code-errors.enum';
 import { Repository } from 'typeorm';
 import { IbgeSidraService } from '../ibge-sidra/ibge-sidra.service';
 import { IbgeService } from '../ibge/ibge.service';
-import { CityPopulationResponseDTO } from './dto/city-population-response.dto';
+import { CityPopulationResponseDTO } from './dto/city-population-response.dto copy';
 import { CreateCityDTO } from './dto/create-city.dto';
 import { City } from './entities/city.entity';
 

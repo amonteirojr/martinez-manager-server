@@ -8,6 +8,7 @@ import { HttpService } from '@nestjs/axios';
 import { CodeErrors } from 'src/shared/code-errors.enum';
 import { firstValueFrom } from 'rxjs';
 import { IbgeCityResponseDTO } from './dto/ibge-citiy-response.dto';
+import { CitiesIbgeResponseDTO } from '../city/dto/cities-ibge-response.dto';
 
 @Injectable()
 export class IbgeService {
@@ -28,6 +29,32 @@ export class IbgeService {
       throw new InternalServerErrorException({
         code: CodeErrors.FAIL_TO_GET_IBGE_STATES,
         message: 'Failed to get all systems',
+      });
+    }
+  }
+
+  async getCitiesByStateFromIbge(
+    state: string,
+  ): Promise<CitiesIbgeResponseDTO[] | null> {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(`/estados/${state}/municipios?orderBy=nome`),
+      );
+
+      const result = response.data.map((d: CitiesIbgeResponseDTO) => ({
+        id: d.id,
+        name: d.nome,
+      }));
+
+      return result;
+    } catch (err) {
+      this.logger.error(
+        `Failed to return IBGE cities from ${state}. Cause: ${err}`,
+      );
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_GET_IBGE_CITIES,
+        message: 'Failed to get cities from IBGE',
       });
     }
   }
