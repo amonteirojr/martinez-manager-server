@@ -4,6 +4,7 @@ import { ConfigModule } from '../config/config.module';
 import { ConfigService } from '../config/config.service';
 import { IbgeSidraController } from './ibge-sidra.controller';
 import { IbgeSidraService } from './ibge-sidra.service';
+import { Agent } from 'https';
 
 @Module({
   imports: [
@@ -14,6 +15,9 @@ import { IbgeSidraService } from './ibge-sidra.service';
         timeout: 60000,
         maxRedirects: 5,
         baseURL: configService.envConfig.apiIbgeSidra,
+        httpsAgent: new Agent({
+          rejectUnauthorized: false,
+        }),
       }),
     }),
   ],

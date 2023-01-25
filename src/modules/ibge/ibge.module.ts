@@ -4,6 +4,7 @@ import { IbgeController } from './ibge.controller';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '../config/config.module';
 import { ConfigService } from '../config/config.service';
+import { Agent } from 'https';
 
 @Module({
   imports: [
@@ -14,6 +15,9 @@ import { ConfigService } from '../config/config.service';
         timeout: 120000,
         maxRedirects: 5,
         baseURL: configService.envConfig.apiIbgeLocalidades,
+        httpsAgent: new Agent({
+          rejectUnauthorized: false,
+        }),
       }),
     }),
   ],
