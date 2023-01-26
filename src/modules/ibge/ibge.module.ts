@@ -8,6 +8,7 @@ import { Agent } from 'https';
 
 @Module({
   imports: [
+    ConfigModule,
     HttpModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
