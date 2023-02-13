@@ -284,4 +284,18 @@ export class CustomerService {
       });
     }
   }
+
+  async deleteById(id: number): Promise<void> {
+    try {
+      await this.customerRepository.delete({ customerId: id });
+      return;
+    } catch (err) {
+      this.logger.error(`Failed to delete customer by id ${id}. Cause: ${err}`);
+
+      throw new InternalServerErrorException({
+        code: CodeErrors.FAIL_TO_DELETE_CUSTOMER,
+        message: 'Failed to delete customer by id',
+      });
+    }
+  }
 }

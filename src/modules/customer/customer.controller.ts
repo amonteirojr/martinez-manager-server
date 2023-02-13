@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -76,5 +77,13 @@ export class CustomerController {
     res.contentType('application/pdf');
     res.setHeader('Filename', filename);
     return res.send(file);
+  }
+
+  @Delete('/:id')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteById(@Res() res: Response, @Param('id') id: number) {
+    await this.customerService.deleteById(id);
+    return res.send();
   }
 }
