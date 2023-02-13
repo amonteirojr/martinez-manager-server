@@ -34,6 +34,14 @@ export class CreateCustomerDTO {
   cityId: number;
 
   @ApiProperty({
+    description: 'Nome da cidade',
+    example: 1,
+    type: String,
+  })
+  @IsString()
+  cityName: string;
+
+  @ApiProperty({
     description: 'ID do tipo',
     example: 1,
     type: Number,

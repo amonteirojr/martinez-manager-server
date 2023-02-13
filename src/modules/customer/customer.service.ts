@@ -5,17 +5,15 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CodeErrors } from 'src/shared/code-errors.enum';
-import { CNPJFormatter, formatDateToLocaleString } from 'src/shared/formatters';
+import { CNPJFormatter } from 'src/shared/formatters';
 
-import { FindOptionsWhere, Raw, Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { CityService } from '../city/city.service';
 import { City } from '../city/entities/city.entity';
 
 import { CreateCustomerDTO } from './dto/create-customer.dto';
 import { CustomerResponseDTO } from './dto/customer-response.dto';
 import { Customer } from './entities/customer.entity';
-import * as PDFPrinter from 'pdfmake';
-import { pdfMakeFonts } from 'src/shared/pdfMakeFonts';
 import { launch } from 'puppeteer';
 import { generateHtmlFromTemplate } from 'src/shared/report-functions';
 import { pdfOptions } from 'src/shared/pdfStructure';
@@ -35,6 +33,8 @@ export class CustomerService {
     try {
       const createdCity = await this.cityService.createCityWithIbgeData(
         data.cityId,
+        data.cityName,
+        data.state,
         data.cityPopulation,
       );
 
@@ -80,6 +80,8 @@ export class CustomerService {
       if (!existingCity) {
         createdCity = await this.cityService.createCityWithIbgeData(
           data.cityId,
+          data.cityName,
+          data.state,
           data.cityPopulation,
         );
       }

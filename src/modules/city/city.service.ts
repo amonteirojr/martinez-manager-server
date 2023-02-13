@@ -48,6 +48,8 @@ export class CityService {
 
   async createCityWithIbgeData(
     ibgeId: number,
+    cityName: string,
+    state: string,
     cityPopulation: number,
   ): Promise<City> {
     try {
@@ -59,40 +61,11 @@ export class CityService {
         return existingCity;
       }
 
-      const ibgeCityData = await this.ibgeService.getCityById(ibgeId);
-
-      if (!ibgeCityData) {
-        this.logger.error(`City IBGE id ${ibgeId} wasn't found in IBGE api`);
-
-        throw new InternalServerErrorException({
-          code: CodeErrors.FAIL_TO_FIND_CITY_BY_IBGE_ID,
-          message: `Failed to find city`,
-        });
-      }
-
-      if (!cityPopulation || cityPopulation === 0) {
-        const result = await this.sidraService.getCityPopulationByCityId(
-          ibgeId,
-        );
-        cityPopulation = result.population;
-      }
-
-      if (!cityPopulation) {
-        this.logger.error(
-          `City IBGE id ${ibgeId} wasn't found in IBGE SIDRA api`,
-        );
-
-        throw new InternalServerErrorException({
-          code: CodeErrors.FAIL_TO_FIND_CITY_BY_IBGE_ID,
-          message: `Failed to find city`,
-        });
-      }
-
       const newCity: CreateCityDTO = {
-        cityName: ibgeCityData.nome,
-        ibgeCode: ibgeCityData.id,
-        state: ibgeCityData.microrregiao.mesorregiao.UF.sigla,
+        cityName,
+        state,
         cityPopulation,
+        ibgeCode: ibgeId,
       };
 
       return await this.cityRepository.create(newCity).save();
