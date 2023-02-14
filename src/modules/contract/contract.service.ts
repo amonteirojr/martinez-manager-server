@@ -420,7 +420,7 @@ export class ContractService {
     }
   }
 
-  async getContractById(id: number): Promise<any> {
+  async getContractById(id: number): Promise<Contract> {
     try {
       const contract = await this.contractRepository.findOne({
         where: { contractId: id },

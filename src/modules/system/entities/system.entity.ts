@@ -9,8 +9,6 @@ import {
   OneToMany,
   JoinColumn,
 } from 'typeorm';
-import { Contract } from 'src/modules/contract/entitites/contract.entity';
-import { ContractsSystems } from 'src/modules/contracts-systems/entities/contracts-systems.entity';
 
 @Entity({ name: 'systems' })
 export class System extends BaseEntity {

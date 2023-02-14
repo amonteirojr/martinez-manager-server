@@ -22,7 +22,7 @@ export class ContractsSystems extends BaseEntity {
   systemId: number;
 
   @Column()
-  admentmentId: number;
+  admentmentId?: number;
 
   @Column()
   deploymentDate?: string;

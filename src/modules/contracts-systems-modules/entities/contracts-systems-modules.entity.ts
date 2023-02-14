@@ -19,19 +19,7 @@ export class ContractsSystemsModules extends BaseEntity {
   id?: number;
 
   @Column()
-  contractSystemId?: number;
-
-  @Column()
-  moduleId: number;
-
-  @Column()
-  admentmentId: number;
-
-  @Column()
   deploymentDate?: string;
-
-  @Column()
-  responsibleId?: number;
 
   @Column()
   comments?: string;
@@ -41,6 +29,15 @@ export class ContractsSystemsModules extends BaseEntity {
 
   @Column()
   installments: number;
+
+  @Column()
+  contractSystemId?: number;
+
+  @Column()
+  moduleId: number;
+
+  @Column()
+  responsibleId?: number;
 
   @CreateDateColumn()
   createdAt?: Date;
