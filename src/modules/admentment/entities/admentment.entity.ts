@@ -27,7 +27,7 @@ export class Admentment extends BaseEntity {
   @Column()
   admentmentNumber: string;
 
-  @Column()
+  @Column({ type: 'decimal' })
   monthValue?: number;
 
   @Column()

@@ -315,14 +315,14 @@ export class ContractService {
 
       const [actualValues] = await this.contractRepository
         .query(`SELECT DISTINCT
-                  contracts."monthValue" +
-                  coalesce((select
-                                sum(x."monthValue")
-                          from admentments x
-                          where
-                                x."contractId" = contracts."contractId"
-                                and x."deletedAt" is null
-                                and x."initialDate" <= '${filterDate}'), 0)
+                      coalesce((select
+                        x."monthValue"
+                  from admentments x
+                  where
+                        x."contractId" = contracts."contractId"
+                        and x."deletedAt" is null
+                        and x."initialDate" <= '${filterDate}'
+                  order by x."initialDate" desc limit 1), contracts."monthValue", 0)
                   as "actualMonthValue",
                   contracts.installments,
                   coalesce((select 

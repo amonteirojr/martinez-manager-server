@@ -67,8 +67,6 @@ export class FileController {
   @Get('/reports/:reportPath')
   getReport(@Param('reportPath') report: string, @Res() res: Response) {
     const root = './downloads/files';
-    console.log(root);
-
     return res.sendFile(report, { root });
   }
 }

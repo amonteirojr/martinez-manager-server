@@ -26,7 +26,7 @@ export class AdmentmentsSystemsModules extends BaseEntity {
   @Column()
   installments?: number;
 
-  @Column()
+  @Column({ type: 'decimal' })
   monthValue?: number;
 
   @Column()
