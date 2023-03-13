@@ -5,6 +5,7 @@ import {
   IsEnum,
   IsUrl,
   IsEmail,
+  IsOptional,
 } from 'class-validator';
 
 export enum NodeEnv {
@@ -41,17 +42,21 @@ export class ConfigEnv {
   @IsString()
   typeormConnection: 'postgres';
 
+  @IsOptional()
   @IsString()
-  typeormEntities: string;
+  typeormEntities?: string;
 
+  @IsOptional()
   @IsString()
-  typeormEntitiesDir: string;
+  typeormEntitiesDir?: string;
 
+  @IsOptional()
   @IsString()
-  typeormMigrations: string;
+  typeormMigrations?: string;
 
+  @IsOptional()
   @IsString()
-  typeormMigrationsDir: string;
+  typeormMigrationsDir?: string;
 
   @IsUrl()
   apiIbgeSidra: string;
