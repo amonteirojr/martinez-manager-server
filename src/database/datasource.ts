@@ -13,8 +13,8 @@ const AppDataSource = new DataSource({
   password: config.envConfig.typeormPassword,
   synchronize: false,
   migrationsRun: true,
-  entities: [__dirname + '/../../dist/**/*.entity{.ts,.js}'],
-  migrations: [__dirname + '/../../dist/migrations/**/*{.ts,.js}'],
+  entities: ['dist/**/*.entity{.ts,.js}'],
+  migrations: ['dist/migrations/**/*{.ts,.js}'],
   logging: false,
 });
 
